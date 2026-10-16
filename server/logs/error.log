@@ -1,0 +1,524 @@
+2026-08-09 10:15:45 [error]: invalid_grant | POST /api/gmail/send
+2026-08-09 10:15:51 [error]: invalid_grant | POST /api/gmail/send
+2026-08-09 10:24:17 [error]: Insufficient Permission | POST /api/gmail/send
+2026-08-16 22:33:09 [error]: AI generation error: 429 Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kwgkh48pextaz2y8xsdrcny2` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99421, Requested 1333. Please try again in 10m51.456s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing
+2026-08-16 22:33:09 [error]: 429 Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kwgkh48pextaz2y8xsdrcny2` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99421, Requested 1333. Please try again in 10m51.456s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing | POST /api/ai/generate
+2026-08-16 22:37:14 [error]: AI generation error: 429 Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kwgkh48pextaz2y8xsdrcny2` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99137, Requested 1333. Please try again in 6m46.08s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing
+2026-08-16 22:37:14 [error]: 429 Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kwgkh48pextaz2y8xsdrcny2` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99137, Requested 1333. Please try again in 6m46.08s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing | POST /api/ai/generate
+2026-08-16 22:39:20 [error]: AI generation error: 429 Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kwgkh48pextaz2y8xsdrcny2` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98991, Requested 1333. Please try again in 4m39.936s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing
+2026-08-16 22:39:20 [error]: 429 Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kwgkh48pextaz2y8xsdrcny2` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98991, Requested 1333. Please try again in 4m39.936s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing | POST /api/ai/generate
+2026-08-16 22:44:01 [error]: AI generation error: 429 Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kwgkh48pextaz2y8xsdrcny2` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99999, Requested 1333. Please try again in 19m10.848s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing
+2026-08-16 22:44:01 [error]: 429 Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kwgkh48pextaz2y8xsdrcny2` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99999, Requested 1333. Please try again in 19m10.848s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing | POST /api/ai/generate
+2026-08-18 18:30:24 [error]: Batch [1/57]: failed for 6a81e62da39d1d1ef9f02656 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:27 [error]: Batch [2/57]: failed for 6a81e62da39d1d1ef9f02654 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:29 [error]: Batch [3/57]: failed for 6a81e62da39d1d1ef9f02652 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:31 [error]: Batch [4/57]: failed for 6a81e62da39d1d1ef9f02650 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:34 [error]: Batch [5/57]: failed for 6a81e62da39d1d1ef9f0264e — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:36 [error]: Batch [6/57]: failed for 6a81e62da39d1d1ef9f0264c — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:38 [error]: Batch [7/57]: failed for 6a81e62da39d1d1ef9f0264a — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:41 [error]: Batch [8/57]: failed for 6a81e62da39d1d1ef9f02648 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:43 [error]: Batch [9/57]: failed for 6a81e62da39d1d1ef9f02646 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:45 [error]: Batch [10/57]: failed for 6a81e62da39d1d1ef9f02644 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:48 [error]: Batch [11/57]: failed for 6a81e62da39d1d1ef9f02642 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:50 [error]: Batch [12/57]: failed for 6a81e62da39d1d1ef9f02640 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:52 [error]: Batch [13/57]: failed for 6a81e62da39d1d1ef9f0263e — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:55 [error]: Batch [14/57]: failed for 6a81e62da39d1d1ef9f0263c — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:57 [error]: Batch [15/57]: failed for 6a81e62da39d1d1ef9f0263a — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:30:59 [error]: Batch [16/57]: failed for 6a81e62da39d1d1ef9f02638 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:02 [error]: Batch [17/57]: failed for 6a81e62da39d1d1ef9f02636 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:04 [error]: Batch [18/57]: failed for 6a81e62da39d1d1ef9f02634 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:07 [error]: Batch [19/57]: failed for 6a81e62da39d1d1ef9f02632 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:09 [error]: Batch [20/57]: failed for 6a81e62da39d1d1ef9f02630 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:11 [error]: Batch [21/57]: failed for 6a81e62da39d1d1ef9f0262e — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:14 [error]: Batch [22/57]: failed for 6a81e62da39d1d1ef9f0262c — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:16 [error]: Batch [23/57]: failed for 6a81e62da39d1d1ef9f02628 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:18 [error]: Batch [24/57]: failed for 6a81e62da39d1d1ef9f02626 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:20 [error]: Batch [25/57]: failed for 6a81e62da39d1d1ef9f02624 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:23 [error]: Batch [26/57]: failed for 6a81e62da39d1d1ef9f02622 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:25 [error]: Batch [27/57]: failed for 6a81e62da39d1d1ef9f02620 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:28 [error]: Batch [28/57]: failed for 6a81e62da39d1d1ef9f0261e — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:30 [error]: Batch [29/57]: failed for 6a81e62da39d1d1ef9f0261c — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:32 [error]: Batch [30/57]: failed for 6a81e62da39d1d1ef9f0261a — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:35 [error]: Batch [31/57]: failed for 6a81e62da39d1d1ef9f02618 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:37 [error]: Batch [32/57]: failed for 6a81e62da39d1d1ef9f02616 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:39 [error]: Batch [33/57]: failed for 6a81e62da39d1d1ef9f02614 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:42 [error]: Batch [34/57]: failed for 6a81e62da39d1d1ef9f02612 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:44 [error]: Batch [35/57]: failed for 6a81e62da39d1d1ef9f02610 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:46 [error]: Batch [36/57]: failed for 6a81e62da39d1d1ef9f0260e — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:49 [error]: Batch [37/57]: failed for 6a81e62da39d1d1ef9f0260c — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:51 [error]: Batch [38/57]: failed for 6a81e62da39d1d1ef9f0260a — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:53 [error]: Batch [39/57]: failed for 6a81e62da39d1d1ef9f02608 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:56 [error]: Batch [40/57]: failed for 6a81e62da39d1d1ef9f02606 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:31:58 [error]: Batch [41/57]: failed for 6a81e62da39d1d1ef9f02604 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:00 [error]: Batch [42/57]: failed for 6a81e62da39d1d1ef9f02602 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:03 [error]: Batch [43/57]: failed for 6a81e62da39d1d1ef9f02600 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:05 [error]: Batch [44/57]: failed for 6a81e62da39d1d1ef9f025fe — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:08 [error]: Batch [45/57]: failed for 6a81e62da39d1d1ef9f025fc — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:10 [error]: Batch [46/57]: failed for 6a81e62da39d1d1ef9f025fa — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:13 [error]: Batch [47/57]: failed for 6a81e62da39d1d1ef9f025f8 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:15 [error]: Batch [48/57]: failed for 6a81e62da39d1d1ef9f025f6 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:17 [error]: Batch [49/57]: failed for 6a81e62da39d1d1ef9f025f4 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:20 [error]: Batch [50/57]: failed for 6a81e62da39d1d1ef9f025f2 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:22 [error]: Batch [51/57]: failed for 6a81e62da39d1d1ef9f025f0 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:25 [error]: Batch [52/57]: failed for 6a81e62da39d1d1ef9f025ee — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:27 [error]: Batch [53/57]: failed for 6a81e62da39d1d1ef9f025ec — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:29 [error]: Batch [54/57]: failed for 6a81e62da39d1d1ef9f025ea — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:32 [error]: Batch [55/57]: failed for 6a81e62da39d1d1ef9f025e8 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:35 [error]: Batch [56/57]: failed for 6a81e62da39d1d1ef9f025e6 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:32:38 [error]: Batch [57/57]: failed for 6a81e62da39d1d1ef9f025e2 — 404 The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+2026-08-18 18:38:19 [error]: Batch [2/57]: failed for 6a81e62da39d1d1ef9f02654 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:38:28 [error]: Batch [4/57]: failed for 6a81e62da39d1d1ef9f02650 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:38:47 [error]: Batch [8/57]: failed for 6a81e62da39d1d1ef9f02648 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:38:58 [error]: Batch [9/57]: failed for 6a81e62da39d1d1ef9f02646 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:40:19 [error]: Batch [18/57]: failed for 6a81e62da39d1d1ef9f02634 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:40:40 [error]: Batch [20/57]: failed for 6a81e62da39d1d1ef9f02630 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:40:50 [error]: Batch [21/57]: failed for 6a81e62da39d1d1ef9f0262e — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:41:08 [error]: Batch [23/57]: failed for 6a81e62da39d1d1ef9f02628 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:41:18 [error]: Batch [24/57]: failed for 6a81e62da39d1d1ef9f02626 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:41:36 [error]: Batch [26/57]: failed for 6a81e62da39d1d1ef9f02622 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:42:23 [error]: Batch [31/57]: failed for 6a81e62da39d1d1ef9f02618 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:42:33 [error]: Batch [32/57]: failed for 6a81e62da39d1d1ef9f02616 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:42:44 [error]: Batch [33/57]: failed for 6a81e62da39d1d1ef9f02614 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:42:53 [error]: Batch [34/57]: failed for 6a81e62da39d1d1ef9f02612 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:43:15 [error]: Batch [36/57]: failed for 6a81e62da39d1d1ef9f0260e — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:47:57 [error]: Batch [1/36]: failed for 6a81e62da39d1d1ef9f02654 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:48:02 [error]: Batch [2/36]: failed for 6a81e62da39d1d1ef9f02650 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:48:07 [error]: Batch [3/36]: failed for 6a81e62da39d1d1ef9f02648 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:48:20 [error]: Batch [6/36]: failed for 6a81e62da39d1d1ef9f02630 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:48:29 [error]: Batch [8/36]: failed for 6a81e62da39d1d1ef9f02628 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:48:34 [error]: Batch [9/36]: failed for 6a81e62da39d1d1ef9f02626 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:48:38 [error]: Batch [10/36]: failed for 6a81e62da39d1d1ef9f02622 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:48:47 [error]: Batch [11/36]: failed for 6a81e62da39d1d1ef9f02618 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:49:08 [error]: Batch [13/36]: failed for 6a81e62da39d1d1ef9f02614 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:49:29 [error]: Batch [15/36]: failed for 6a81e62da39d1d1ef9f0260e — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:49:38 [error]: Batch [16/36]: failed for 6a81e62da39d1d1ef9f0260c — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:49:58 [error]: Batch [18/36]: failed for 6a81e62da39d1d1ef9f02608 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:50:20 [error]: Batch [20/36]: failed for 6a81e62da39d1d1ef9f02604 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:50:37 [error]: Batch [22/36]: failed for 6a81e62da39d1d1ef9f02600 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:50:48 [error]: Batch [23/36]: failed for 6a81e62da39d1d1ef9f025fe — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:51:08 [error]: Batch [25/36]: failed for 6a81e62da39d1d1ef9f025fa — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:51:24 [error]: Batch [27/36]: failed for 6a81e62da39d1d1ef9f025f6 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:51:34 [error]: Batch [28/36]: failed for 6a81e62da39d1d1ef9f025f4 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:51:44 [error]: Batch [29/36]: failed for 6a81e62da39d1d1ef9f025f2 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:52:05 [error]: Batch [31/36]: failed for 6a81e62da39d1d1ef9f025ee — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:52:39 [error]: Batch [35/36]: failed for 6a81e62da39d1d1ef9f025e6 — Draft validation failed: body: Path `body` is required.
+2026-08-18 18:52:49 [error]: Batch [36/36]: failed for 6a81e62da39d1d1ef9f025e2 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:15:21 [error]: Batch [4/22]: failed for 6a81e62da39d1d1ef9f02630 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:15:29 [error]: Batch [6/22]: failed for 6a81e62da39d1d1ef9f02626 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:15:34 [error]: Batch [7/22]: failed for 6a81e62da39d1d1ef9f02622 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:15:38 [error]: Batch [8/22]: failed for 6a81e62da39d1d1ef9f02618 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:15:48 [error]: Batch [9/22]: failed for 6a81e62da39d1d1ef9f02614 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:16:08 [error]: Batch [11/22]: failed for 6a81e62da39d1d1ef9f0260c — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:16:18 [error]: Batch [12/22]: failed for 6a81e62da39d1d1ef9f02608 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:16:29 [error]: Batch [13/22]: failed for 6a81e62da39d1d1ef9f02604 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:16:49 [error]: Batch [15/22]: failed for 6a81e62da39d1d1ef9f025fe — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:17:12 [error]: Batch [17/22]: failed for 6a81e62da39d1d1ef9f025f6 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:17:22 [error]: Batch [18/22]: failed for 6a81e62da39d1d1ef9f025f4 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:17:32 [error]: Batch [19/22]: failed for 6a81e62da39d1d1ef9f025f2 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:17:42 [error]: Batch [20/22]: failed for 6a81e62da39d1d1ef9f025ee — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:17:53 [error]: Batch [21/22]: failed for 6a81e62da39d1d1ef9f025e6 — Draft validation failed: body: Path `body` is required.
+2026-08-19 19:18:02 [error]: Batch [22/22]: failed for 6a81e62da39d1d1ef9f025e2 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:05:50 [error]: Batch [1/53]: failed for 6aa0475bac4af005819adaf0 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:06:10 [error]: Batch [6/53]: failed for 6aa0475bac4af005819adae6 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:06:15 [error]: Batch [7/53]: failed for 6aa0475bac4af005819adae4 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:06:27 [error]: Batch [10/53]: failed for 6aa0475bac4af005819adade — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:06:41 [error]: Batch [12/53]: failed for 6aa0475bac4af005819adada — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:06:59 [error]: Batch [14/53]: failed for 6aa0475bac4af005819adad6 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:07:09 [error]: Batch [15/53]: failed for 6aa0475bac4af005819adad4 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:07:28 [error]: Batch [17/53]: failed for 6aa0475bac4af005819adad0 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:07:56 [error]: Batch [20/53]: failed for 6aa0475bac4af005819adaca — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:08:15 [error]: Batch [22/53]: failed for 6aa0475bac4af005819adac6 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:08:25 [error]: Batch [23/53]: failed for 6aa0475bac4af005819adac4 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:08:36 [error]: Batch [24/53]: failed for 6aa0475bac4af005819adac2 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:09:01 [error]: Batch [27/53]: failed for 6aa0475bac4af005819adabc — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:09:28 [error]: Batch [30/53]: failed for 6aa0475aac4af005819adab6 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:09:56 [error]: Batch [33/53]: failed for 6aa0475aac4af005819adab0 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:10:17 [error]: Batch [35/53]: failed for 6aa0475aac4af005819adaac — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:10:27 [error]: Batch [1/10]: failed for 6aa0475bac4af005819adaf0 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:10:38 [error]: Batch [36/53]: failed for 6aa0475aac4af005819adaaa — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:11:06 [error]: Batch [38/53]: failed for 6aa0475aac4af005819adaa6 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:11:15 [error]: Batch [3/10]: failed for 6aa0475bac4af005819adae4 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:11:45 [error]: Batch [5/10]: failed for 6aa0475bac4af005819adada — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:11:52 [error]: Batch [6/10]: failed for 6aa0475bac4af005819adad6 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:12:02 [error]: Batch [7/10]: failed for 6aa0475bac4af005819adad4 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:12:23 [error]: Batch [41/53]: failed for 6a81e62da39d1d1ef9f02622 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:12:33 [error]: Batch [8/10]: failed for 6aa0475bac4af005819adad0 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:12:43 [error]: Batch [42/53]: failed for 6a81e62da39d1d1ef9f02618 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:13:01 [error]: Batch [10/10]: failed for 6aa0475bac4af005819adac6 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:13:11 [error]: Batch [43/53]: failed for 6a81e62da39d1d1ef9f02614 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:13:29 [error]: Batch [45/53]: failed for 6a81e62da39d1d1ef9f02608 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:13:40 [error]: Batch [46/53]: failed for 6a81e62da39d1d1ef9f02604 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:14:07 [error]: Batch [49/53]: failed for 6a81e62da39d1d1ef9f025f4 — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:14:28 [error]: Batch [51/53]: failed for 6a81e62da39d1d1ef9f025ee — Draft validation failed: body: Path `body` is required.
+2026-09-08 23:33:14 [error]: Batch [1/3]: failed for 6aa0475bac4af005819adaf0 — {"error":{"code":404,"message":"This model models/gemini-2.0-flash is no longer available. Please update your code to use models/gemini-3.6-flash for the latest features and improvements. We recommend you to use the Interactions API.","status":"NOT_FOUND"}}
+2026-09-08 23:33:16 [error]: Batch [2/3]: failed for 6aa0475bac4af005819adae4 — {"error":{"code":404,"message":"This model models/gemini-2.0-flash is no longer available. Please update your code to use models/gemini-3.6-flash for the latest features and improvements. We recommend you to use the Interactions API.","status":"NOT_FOUND"}}
+2026-09-08 23:33:19 [error]: Batch [3/3]: failed for 6aa0475bac4af005819adada — {"error":{"code":404,"message":"This model models/gemini-2.0-flash is no longer available. Please update your code to use models/gemini-3.6-flash for the latest features and improvements. We recommend you to use the Interactions API.","status":"NOT_FOUND"}}
+2026-09-08 23:35:15 [error]: Batch [1/3]: failed for 6aa0475bac4af005819adaf0 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-09 21:21:24 [error]: Batch [1/19]: failed for 6aa0475bac4af005819adaf0 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-09 21:21:31 [error]: Batch [2/19]: failed for 6aa0475bac4af005819adad4 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-09 21:21:38 [error]: Batch [3/19]: failed for 6aa0475bac4af005819adad0 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-09 21:22:25 [error]: Batch [4/19]: failed for 6aa0475bac4af005819adac6 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-09 21:22:33 [error]: Batch [5/19]: failed for 6aa0475bac4af005819adac4 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-09 21:34:00 [error]: Batch [1/23]: failed for 6aa1822253a9c88a2d1bccf2 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-09 21:36:57 [error]: Batch [6/23]: failed for 6aa1822253a9c88a2d1bcce8 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-09 21:37:29 [error]: Batch [7/23]: failed for 6aa1822253a9c88a2d1bcce6 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-09 21:38:06 [error]: Batch [8/23]: failed for 6aa1822253a9c88a2d1bcce4 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-09 21:38:30 [error]: Batch [9/23]: failed for 6aa1822253a9c88a2d1bcce2 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-09 21:51:32 [error]: Batch [1/17]: failed for 6aa1822253a9c88a2d1bccf2 — {"error":{"code":429,"message":"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 28.701429712s.","status":"RESOURCE_EXHAUSTED","details":[{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-3.6-flash"},"quotaValue":"20"}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"28s"}]}}
+2026-09-28 07:50:05 [error]: Batch [1/14]: failed for 6ab9cebbffdcf5d09d971784 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:50:37 [error]: Batch [4/14]: failed for 6ab9cebbffdcf5d09d97177e — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:50:59 [error]: Batch [6/14]: failed for 6ab9cebbffdcf5d09d97177a — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:51:30 [error]: Batch [9/14]: failed for 6ab9cebbffdcf5d09d971774 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:51:36 [error]: Batch [10/14]: failed for 6ab9cebbffdcf5d09d971772 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:52:05 [error]: Batch [2/9]: failed for 6ab9cebbffdcf5d09d97177e — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:52:07 [error]: Batch [12/14]: failed for 6ab9cebbffdcf5d09d97176e — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:52:11 [error]: Batch [3/9]: failed for 6ab9cebbffdcf5d09d97177a — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:52:20 [error]: Batch [13/14]: failed for 6ab9cebbffdcf5d09d97176c — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:52:24 [error]: Batch [4/9]: failed for 6ab9cebbffdcf5d09d971774 — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:52:29 [error]: Batch [14/14]: failed for 6ab9cebbffdcf5d09d97176a — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:53:30 [error]: Batch [7/9]: failed for 6ab9cebbffdcf5d09d97176e — {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-09-28 07:55:44 [error]: Batch [8/9]: failed for 6ab9cebbffdcf5d09d97176c — {"error":{"code":429,"message":"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 14.798763842s.","status":"RESOURCE_EXHAUSTED","details":[{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-3.6-flash"},"quotaValue":"20"}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"14s"}]}}
+2026-09-28 07:57:40 [error]: Batch [1/6]: failed for 6ab9cebbffdcf5d09d97177e — {"error":{"code":429,"message":"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 19.056306392s.","status":"RESOURCE_EXHAUSTED","details":[{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"model":"gemini-3.6-flash","location":"global"},"quotaValue":"20"}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"19s"}]}}
+2026-09-28 07:57:59 [error]: Batch [9/9]: failed for 6ab9cebbffdcf5d09d97176a — {"error":{"code":429,"message":"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 59.940475999s.","status":"RESOURCE_EXHAUSTED","details":[{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-3.6-flash"},"quotaValue":"20"}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"59s"}]}}
+2026-09-28 07:59:55 [error]: Batch [2/6]: failed for 6ab9cebbffdcf5d09d97177a — {"error":{"code":429,"message":"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 4.522184626s.","status":"RESOURCE_EXHAUSTED","details":[{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-3.6-flash"},"quotaValue":"20"}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"4s"}]}}
+2026-09-28 08:02:10 [error]: Batch [3/6]: failed for 6ab9cebbffdcf5d09d971774 — {"error":{"code":429,"message":"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 48.825664519s.","status":"RESOURCE_EXHAUSTED","details":[{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-3.6-flash"},"quotaValue":"20"}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"48s"}]}}
+2026-09-28 08:04:26 [error]: Batch [4/6]: failed for 6ab9cebbffdcf5d09d97176e — {"error":{"code":429,"message":"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 33.448856388s.","status":"RESOURCE_EXHAUSTED","details":[{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-3.6-flash"},"quotaValue":"20"}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"33s"}]}}
+2026-09-28 08:06:41 [error]: Batch [5/6]: failed for 6ab9cebbffdcf5d09d97176c — {"error":{"code":429,"message":"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 17.651641819s.","status":"RESOURCE_EXHAUSTED","details":[{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"model":"gemini-3.6-flash","location":"global"},"quotaValue":"20"}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"17s"}]}}
+2026-09-28 08:08:57 [error]: Batch [6/6]: failed for 6ab9cebbffdcf5d09d97176a — {"error":{"code":429,"message":"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 2.596686592s.","status":"RESOURCE_EXHAUSTED","details":[{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-3.6-flash"},"quotaValue":"20"}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"2s"}]}}
+2026-10-02 16:03:01 [error]: Email template generation error: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-10-02 16:03:01 [error]: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}} | POST /api/email-template/generate
+2026-10-05 19:43:10 [error]: Abstract API network error for hsshr@hss.hns.com: read ECONNRESET
+2026-10-05 19:43:10 [error]: Abstract API network error for suman.rajeev@oracle.com: read ECONNRESET
+2026-10-05 19:43:10 [error]: Abstract API network error for nadhr@nortelnetworks.com: read ECONNRESET
+2026-10-05 19:43:10 [error]: Abstract API network error for npwhrindia@intel.com: read ECONNRESET
+2026-10-05 19:43:10 [error]: Abstract API network error for naveen.vemula@oracle.com: read ECONNRESET
+2026-10-05 19:43:16 [error]: Abstract API network error for recruit-india@deshaw.com: socket hang up
+2026-10-05 19:43:16 [error]: Abstract API network error for rsriram@hclt.com: socket hang up
+2026-10-05 19:43:16 [error]: Abstract API network error for resumes@india.hp.com: socket hang up
+2026-10-05 19:43:16 [error]: Abstract API network error for bangalore@vxindia.veritas.com: socket hang up
+2026-10-05 19:43:16 [error]: Abstract API network error for recruitment@blore.tcs.co.in: socket hang up
+2026-10-05 19:43:22 [error]: Abstract API network error for itl.geitc@geind.ge.com: socket hang up
+2026-10-05 19:43:22 [error]: Abstract API network error for mamol@in.ibm.com: socket hang up
+2026-10-05 19:43:22 [error]: Abstract API network error for osudar@in.ibm.com: socket hang up
+2026-10-05 19:43:22 [error]: Abstract API network error for resumeblr@hclt.com: socket hang up
+2026-10-05 19:43:22 [error]: Abstract API network error for bangalore.hrd@inf.com: socket hang up
+2026-10-05 19:43:29 [error]: Abstract API network error for sandeep.bhattacharya@iflexsolutions.com: socket hang up
+2026-10-05 19:43:29 [error]: Abstract API network error for hrtoi@india.ptc.com: socket hang up
+2026-10-05 19:43:29 [error]: Abstract API network error for bstp@melstar.com: socket hang up
+2026-10-05 19:43:29 [error]: Abstract API network error for careers@inf.com: socket hang up
+2026-10-05 19:43:29 [error]: Abstract API network error for careerb@msdc.hcltech.com: socket hang up
+2026-10-05 19:43:35 [error]: Abstract API network error for recruitment@birlasoftware.com: socket hang up
+2026-10-05 19:43:35 [error]: Abstract API network error for hr@mphasis.com: socket hang up
+2026-10-05 19:43:35 [error]: Abstract API network error for careers@noida.hclt.com: socket hang up
+2026-10-05 19:43:35 [error]: Abstract API network error for crvcon@vsnl.com: socket hang up
+2026-10-05 19:43:35 [error]: Abstract API network error for resume_toib@polaris.co.in: socket hang up
+2026-10-05 19:43:41 [error]: Abstract API network error for talent@linkageit.com: socket hang up
+2026-10-05 19:43:41 [error]: Abstract API network error for resume@multitech.co.in: socket hang up
+2026-10-05 19:43:41 [error]: Abstract API network error for career@hiso.honeywell.com: socket hang up
+2026-10-05 19:43:41 [error]: Abstract API network error for banking_hrd@infy.com: socket hang up
+2026-10-05 19:43:41 [error]: Abstract API network error for sanjukta.sarkar@sap.com: socket hang up
+2026-10-05 19:43:47 [error]: Abstract API network error for hr@r2nindia.in: socket hang up
+2026-10-05 19:43:47 [error]: Abstract API network error for careers@talenticaresource.com: socket hang up
+2026-10-05 19:43:47 [error]: Abstract API network error for hr@techbuddiesit.org: socket hang up
+2026-10-05 19:43:47 [error]: Abstract API network error for hr@ariconsoftware.com: socket hang up
+2026-10-05 19:43:47 [error]: Abstract API network error for hr@cognavi.com: socket hang up
+2026-10-06 19:50:42 [error]: Abstract API network error for hr@bharatitservices.com: socket hang up
+2026-10-06 19:58:11 [error]: Email template generation error: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-10-06 19:58:11 [error]: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}} | POST /api/email-template/generate
+2026-10-06 19:59:18 [error]: Email template generation error: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-10-06 19:59:18 [error]: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}} | POST /api/email-template/generate
+2026-10-06 20:05:28 [error]: Email template generation error: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-10-06 20:05:34 [error]: Email template generation error: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-10-06 20:08:04 [error]: Email template generation error: {"error":{"code":429,"message":"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 9h21m55.719706298s.","status":"RESOURCE_EXHAUSTED","details":[{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Learn more about Gemini API quotas","url":"https://ai.google.dev/gemini-api/docs/rate-limits"}]},{"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[{"quotaMetric":"generativelanguage.googleapis.com/generate_content_free_tier_requests","quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaDimensions":{"location":"global","model":"gemini-3.6-flash"},"quotaValue":"20"}]},{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"33715s"}]}}
+2026-10-07 19:50:32 [error]: Email template generation error: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it.
+2026-10-07 19:50:32 [error]: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it. | POST /api/email-template/generate
+2026-10-07 19:50:38 [error]: Email template generation error: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it.
+2026-10-07 19:50:38 [error]: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it. | POST /api/email-template/generate
+2026-10-10 21:20:53 [error]: Email template generation error: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it.
+2026-10-10 21:20:53 [error]: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it. | POST /api/email-template/generate
+2026-10-12 18:18:03 [error]: Email template generation error: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it.
+2026-10-12 18:18:03 [error]: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it. | POST /api/email-template/generate
+2026-10-12 18:25:06 [error]: Abstract API network error for contact@startupmeu.com: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:06 [error]: Abstract API network error for official@graphura.in: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:06 [error]: Abstract API network error for careers@bharatminds.com: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:06 [error]: Abstract API network error for careers@skillbolt.dev: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:06 [error]: Abstract API network error for full-stack-developer-intern-careers@cehpoint.co.in: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:07 [error]: Abstract API network error for careers@svastiq.com: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:07 [error]: Abstract API network error for hello@takhos.com: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:07 [error]: Abstract API network error for careers@confluxaa.com: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:07 [error]: Abstract API network error for ragsproai@gmail.com: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:07 [error]: Abstract API network error for careers@storeshift.in: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:08 [error]: Abstract API network error for careers@mindwareindia.com: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:08 [error]: Abstract API network error for careers@hyperblox.in: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:08 [error]: Abstract API network error for careers@sentientware.in: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:08 [error]: Abstract API network error for jobs@cyberspark.in: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:08 [error]: Abstract API network error for alankrit.utkarsh@briefly.co.in: getaddrinfo ENOTFOUND emailvalidation.abstractapi.com
+2026-10-12 18:25:41 [error]: Bulk send failed for 6accd8bc1653498c6557e605: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:25:49 [error]: Bulk send failed for 6accd8bc1653498c6557e602: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:25:57 [error]: Bulk send failed for 6accd8bc1653498c6557e5ff: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:26:05 [error]: Bulk send failed for 6accd8bc1653498c6557e5fc: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:26:12 [error]: Bulk send failed for 6accd8bc1653498c6557e5f9: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:26:20 [error]: Bulk send failed for 6accd8bc1653498c6557e5f6: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:26:28 [error]: Bulk send failed for 6accd8bc1653498c6557e5f3: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:26:36 [error]: Bulk send failed for 6accd8bc1653498c6557e5f0: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:26:44 [error]: Bulk send failed for 6accd8bc1653498c6557e5ed: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:26:52 [error]: Bulk send failed for 6accd8bc1653498c6557e5ea: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:27:00 [error]: Bulk send failed for 6accd8bc1653498c6557e5e7: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:27:08 [error]: Bulk send failed for 6accd8bc1653498c6557e5e4: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-12 18:27:16 [error]: Bulk send failed for 6accd8bc1653498c6557e5e1: request to https://gmail.googleapis.com/gmail/v1/users/me/profile failed, reason: getaddrinfo ENOTFOUND gmail.googleapis.com
+2026-10-13 18:23:22 [error]: Bulk send failed for 6ace29bc9c22180b0265f33b: invalid_grant
+2026-10-13 18:23:23 [error]: Bulk send failed for 6ace29bc9c22180b0265f338: invalid_grant
+2026-10-13 18:23:24 [error]: Bulk send failed for 6ace29bc9c22180b0265f335: invalid_grant
+2026-10-13 18:23:24 [error]: Bulk send failed for 6ace29bc9c22180b0265f332: invalid_grant
+2026-10-13 18:23:25 [error]: Bulk send failed for 6ace29bc9c22180b0265f32f: invalid_grant
+2026-10-13 18:23:26 [error]: Bulk send failed for 6ace29bc9c22180b0265f32c: invalid_grant
+2026-10-13 18:23:26 [error]: Bulk send failed for 6ace29bc9c22180b0265f329: invalid_grant
+2026-10-13 18:23:27 [error]: Bulk send failed for 6ace29bc9c22180b0265f326: invalid_grant
+2026-10-13 18:25:42 [error]: Bulk send failed for 6ace29bc9c22180b0265f326: invalid_grant
+2026-10-13 18:25:42 [error]: Bulk send failed for 6ace29bc9c22180b0265f329: invalid_grant
+2026-10-13 18:25:43 [error]: Bulk send failed for 6ace29bc9c22180b0265f32c: invalid_grant
+2026-10-13 18:25:43 [error]: Bulk send failed for 6ace29bc9c22180b0265f32f: invalid_grant
+2026-10-13 18:25:43 [error]: Bulk send failed for 6ace29bc9c22180b0265f332: invalid_grant
+2026-10-13 18:25:44 [error]: Bulk send failed for 6ace29bc9c22180b0265f335: invalid_grant
+2026-10-13 18:25:44 [error]: Bulk send failed for 6ace29bc9c22180b0265f338: invalid_grant
+2026-10-13 18:25:45 [error]: Bulk send failed for 6ace29bc9c22180b0265f33b: invalid_grant
+2026-10-13 20:39:51 [error]: Email template generation error: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-10-13 20:40:57 [error]: Email template generation error: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+2026-10-16 10:13:13 [error]: Email template generation error: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it.
+2026-10-16 10:13:13 [error]: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it. | POST /api/email-template/generate
+2026-10-16 10:20:25 [error]: Email template generation error: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it.
+2026-10-16 10:20:25 [error]: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it. | POST /api/email-template/generate
+2026-10-16 10:35:43 [error]: Gmail callback error: unauthorized_client
+2026-10-16 10:46:36 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f4: Insufficient Permission
+2026-10-16 10:46:36 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f1: Insufficient Permission
+2026-10-16 10:46:36 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ee: Insufficient Permission
+2026-10-16 10:46:37 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59eb: Insufficient Permission
+2026-10-16 10:46:37 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e8: Insufficient Permission
+2026-10-16 10:46:37 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e5: Insufficient Permission
+2026-10-16 10:46:37 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e2: Insufficient Permission
+2026-10-16 10:46:38 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59df: Insufficient Permission
+2026-10-16 10:46:38 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59dc: Insufficient Permission
+2026-10-16 10:46:38 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d9: Insufficient Permission
+2026-10-16 10:46:38 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d6: Insufficient Permission
+2026-10-16 10:46:39 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d3: Insufficient Permission
+2026-10-16 10:46:39 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d0: Insufficient Permission
+2026-10-16 10:46:39 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59cd: Insufficient Permission
+2026-10-16 10:46:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ca: Insufficient Permission
+2026-10-16 10:46:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c7: Insufficient Permission
+2026-10-16 10:46:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c4: Insufficient Permission
+2026-10-16 10:46:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c1: Insufficient Permission
+2026-10-16 10:46:41 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59be: Insufficient Permission
+2026-10-16 10:46:41 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59bb: Insufficient Permission
+2026-10-16 10:46:41 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b8: Insufficient Permission
+2026-10-16 10:46:41 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b5: Insufficient Permission
+2026-10-16 10:46:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b2: Insufficient Permission
+2026-10-16 10:46:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59af: Insufficient Permission
+2026-10-16 10:46:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ac: Insufficient Permission
+2026-10-16 10:46:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a9: Insufficient Permission
+2026-10-16 10:46:43 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a6: Insufficient Permission
+2026-10-16 10:46:43 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a3: Insufficient Permission
+2026-10-16 10:46:43 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a0: Insufficient Permission
+2026-10-16 10:46:43 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599d: Insufficient Permission
+2026-10-16 10:46:44 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599a: Insufficient Permission
+2026-10-16 10:46:44 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5997: Insufficient Permission
+2026-10-16 10:46:44 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5994: Insufficient Permission
+2026-10-16 10:47:24 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5994: Insufficient Permission
+2026-10-16 10:47:24 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5997: Insufficient Permission
+2026-10-16 10:47:24 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599a: Insufficient Permission
+2026-10-16 10:47:25 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599d: Insufficient Permission
+2026-10-16 10:47:25 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a0: Insufficient Permission
+2026-10-16 10:47:25 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a3: Insufficient Permission
+2026-10-16 10:47:25 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a6: Insufficient Permission
+2026-10-16 10:47:26 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a9: Insufficient Permission
+2026-10-16 10:47:26 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ac: Insufficient Permission
+2026-10-16 10:47:26 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59af: Insufficient Permission
+2026-10-16 10:47:27 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b2: Insufficient Permission
+2026-10-16 10:47:31 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b5: Insufficient Permission
+2026-10-16 10:47:31 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b8: Insufficient Permission
+2026-10-16 10:47:31 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59bb: Insufficient Permission
+2026-10-16 10:47:32 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59be: Insufficient Permission
+2026-10-16 10:47:32 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c1: Insufficient Permission
+2026-10-16 10:47:32 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c4: Insufficient Permission
+2026-10-16 10:47:32 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c7: Insufficient Permission
+2026-10-16 10:47:37 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ca: Insufficient Permission
+2026-10-16 10:47:37 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59cd: Insufficient Permission
+2026-10-16 10:47:37 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d0: Insufficient Permission
+2026-10-16 10:47:38 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d3: Insufficient Permission
+2026-10-16 10:47:38 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d6: Insufficient Permission
+2026-10-16 10:47:38 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d9: Insufficient Permission
+2026-10-16 10:47:38 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59dc: Insufficient Permission
+2026-10-16 10:47:39 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59df: Insufficient Permission
+2026-10-16 10:47:39 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e2: Insufficient Permission
+2026-10-16 10:47:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e5: Insufficient Permission
+2026-10-16 10:47:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e8: Insufficient Permission
+2026-10-16 10:47:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59eb: Insufficient Permission
+2026-10-16 10:47:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ee: Insufficient Permission
+2026-10-16 10:47:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f1: Insufficient Permission
+2026-10-16 10:47:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f4: Insufficient Permission
+2026-10-16 10:48:58 [error]: Email template generation error: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it.
+2026-10-16 10:48:58 [error]: 404 The model `llama-3.1-8b-instant` does not exist or you do not have access to it. | POST /api/email-template/generate
+2026-10-16 10:49:08 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5994: Insufficient Permission
+2026-10-16 10:49:08 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5997: Insufficient Permission
+2026-10-16 10:49:08 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599a: Insufficient Permission
+2026-10-16 10:49:08 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599d: Insufficient Permission
+2026-10-16 10:49:09 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a0: Insufficient Permission
+2026-10-16 10:49:09 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a3: Insufficient Permission
+2026-10-16 10:49:09 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a6: Insufficient Permission
+2026-10-16 10:49:09 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a9: Insufficient Permission
+2026-10-16 10:49:10 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ac: Insufficient Permission
+2026-10-16 10:49:10 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59af: Insufficient Permission
+2026-10-16 10:49:10 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b2: Insufficient Permission
+2026-10-16 10:49:10 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b5: Insufficient Permission
+2026-10-16 10:49:11 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b8: Insufficient Permission
+2026-10-16 10:49:11 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59bb: Insufficient Permission
+2026-10-16 10:49:11 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59be: Insufficient Permission
+2026-10-16 10:49:11 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c1: Insufficient Permission
+2026-10-16 10:49:12 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c4: Insufficient Permission
+2026-10-16 10:49:12 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c7: Insufficient Permission
+2026-10-16 10:49:12 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ca: Insufficient Permission
+2026-10-16 10:49:13 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59cd: Insufficient Permission
+2026-10-16 10:49:13 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d0: Insufficient Permission
+2026-10-16 10:49:13 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d3: Insufficient Permission
+2026-10-16 10:49:13 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d6: Insufficient Permission
+2026-10-16 10:49:14 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d9: Insufficient Permission
+2026-10-16 10:49:14 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59dc: Insufficient Permission
+2026-10-16 10:49:14 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59df: Insufficient Permission
+2026-10-16 10:49:14 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e2: Insufficient Permission
+2026-10-16 10:49:15 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e5: Insufficient Permission
+2026-10-16 10:49:15 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e8: Insufficient Permission
+2026-10-16 10:49:15 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59eb: Insufficient Permission
+2026-10-16 10:49:15 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ee: Insufficient Permission
+2026-10-16 10:49:16 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f1: Insufficient Permission
+2026-10-16 10:49:16 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f4: Insufficient Permission
+2026-10-16 15:02:45 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5994: Insufficient Permission
+2026-10-16 15:02:46 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5997: Insufficient Permission
+2026-10-16 15:02:47 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599a: Insufficient Permission
+2026-10-16 15:02:48 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599d: Insufficient Permission
+2026-10-16 15:02:48 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a0: Insufficient Permission
+2026-10-16 15:02:49 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a3: Insufficient Permission
+2026-10-16 15:02:49 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a6: Insufficient Permission
+2026-10-16 15:02:50 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a9: Insufficient Permission
+2026-10-16 15:02:50 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ac: Insufficient Permission
+2026-10-16 15:02:51 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59af: Insufficient Permission
+2026-10-16 15:02:51 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b2: Insufficient Permission
+2026-10-16 15:02:52 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b5: Insufficient Permission
+2026-10-16 15:02:52 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b8: Insufficient Permission
+2026-10-16 15:02:52 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59bb: Insufficient Permission
+2026-10-16 15:02:53 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59be: Insufficient Permission
+2026-10-16 15:02:53 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c1: Insufficient Permission
+2026-10-16 15:02:53 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c4: Insufficient Permission
+2026-10-16 15:02:54 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c7: Insufficient Permission
+2026-10-16 15:02:54 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ca: Insufficient Permission
+2026-10-16 15:02:54 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59cd: Insufficient Permission
+2026-10-16 15:02:55 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d0: Insufficient Permission
+2026-10-16 15:02:55 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d3: Insufficient Permission
+2026-10-16 15:02:56 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d6: Insufficient Permission
+2026-10-16 15:02:56 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d9: Insufficient Permission
+2026-10-16 15:02:57 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59dc: Insufficient Permission
+2026-10-16 15:02:57 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59df: Insufficient Permission
+2026-10-16 15:02:58 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e2: Insufficient Permission
+2026-10-16 15:02:58 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e5: Insufficient Permission
+2026-10-16 15:02:58 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e8: Insufficient Permission
+2026-10-16 15:02:59 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59eb: Insufficient Permission
+2026-10-16 15:02:59 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ee: Insufficient Permission
+2026-10-16 15:03:00 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f1: Insufficient Permission
+2026-10-16 15:03:00 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f4: Insufficient Permission
+2026-10-16 15:05:38 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5994: Insufficient Permission
+2026-10-16 15:05:38 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5997: Insufficient Permission
+2026-10-16 15:05:39 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599a: Insufficient Permission
+2026-10-16 15:05:39 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599d: Insufficient Permission
+2026-10-16 15:05:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a0: Insufficient Permission
+2026-10-16 15:05:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a3: Insufficient Permission
+2026-10-16 15:05:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a6: Insufficient Permission
+2026-10-16 15:05:41 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a9: Insufficient Permission
+2026-10-16 15:05:41 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ac: Insufficient Permission
+2026-10-16 15:05:41 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59af: Insufficient Permission
+2026-10-16 15:05:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b2: Insufficient Permission
+2026-10-16 15:05:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b5: Insufficient Permission
+2026-10-16 15:05:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b8: Insufficient Permission
+2026-10-16 15:05:43 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59bb: Insufficient Permission
+2026-10-16 15:05:44 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59be: Insufficient Permission
+2026-10-16 15:05:44 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c1: Insufficient Permission
+2026-10-16 15:05:45 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c4: Insufficient Permission
+2026-10-16 15:05:46 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c7: Insufficient Permission
+2026-10-16 15:05:47 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ca: Insufficient Permission
+2026-10-16 15:05:47 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59cd: Insufficient Permission
+2026-10-16 15:05:48 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d0: Insufficient Permission
+2026-10-16 15:05:49 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d3: Insufficient Permission
+2026-10-16 15:05:49 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d6: Insufficient Permission
+2026-10-16 15:05:50 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d9: Insufficient Permission
+2026-10-16 15:05:50 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59dc: Insufficient Permission
+2026-10-16 15:05:50 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59df: Insufficient Permission
+2026-10-16 15:05:51 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e2: Insufficient Permission
+2026-10-16 15:05:51 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e5: Insufficient Permission
+2026-10-16 15:05:52 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e8: Insufficient Permission
+2026-10-16 15:05:52 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59eb: Insufficient Permission
+2026-10-16 15:05:52 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ee: Insufficient Permission
+2026-10-16 15:05:53 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f1: Insufficient Permission
+2026-10-16 15:05:54 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f4: Insufficient Permission
+2026-10-16 15:13:41 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5994: Insufficient Permission
+2026-10-16 15:13:41 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5997: Insufficient Permission
+2026-10-16 15:13:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599a: Insufficient Permission
+2026-10-16 15:13:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599d: Insufficient Permission
+2026-10-16 15:13:43 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a0: Insufficient Permission
+2026-10-16 15:13:43 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a3: Insufficient Permission
+2026-10-16 15:13:43 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a6: Insufficient Permission
+2026-10-16 15:13:44 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a9: Insufficient Permission
+2026-10-16 15:13:44 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ac: Insufficient Permission
+2026-10-16 15:13:45 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59af: Insufficient Permission
+2026-10-16 15:13:45 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b2: Insufficient Permission
+2026-10-16 15:13:45 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b5: Insufficient Permission
+2026-10-16 15:13:46 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b8: Insufficient Permission
+2026-10-16 15:13:46 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59bb: Insufficient Permission
+2026-10-16 15:13:47 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59be: Insufficient Permission
+2026-10-16 15:13:47 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c1: Insufficient Permission
+2026-10-16 15:13:47 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c4: Insufficient Permission
+2026-10-16 15:13:48 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c7: Insufficient Permission
+2026-10-16 15:13:48 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ca: Insufficient Permission
+2026-10-16 15:13:49 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59cd: Insufficient Permission
+2026-10-16 15:13:49 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d0: Insufficient Permission
+2026-10-16 15:13:50 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d3: Insufficient Permission
+2026-10-16 15:13:50 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d6: Insufficient Permission
+2026-10-16 15:13:51 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d9: Insufficient Permission
+2026-10-16 15:13:51 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59dc: Insufficient Permission
+2026-10-16 15:13:51 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59df: Insufficient Permission
+2026-10-16 15:13:52 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e2: Insufficient Permission
+2026-10-16 15:13:53 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e5: Insufficient Permission
+2026-10-16 15:13:53 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e8: Insufficient Permission
+2026-10-16 15:13:54 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59eb: Insufficient Permission
+2026-10-16 15:13:54 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ee: Insufficient Permission
+2026-10-16 15:13:55 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f1: Insufficient Permission
+2026-10-16 15:13:55 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f4: Insufficient Permission
+2026-10-16 15:28:39 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5994: Insufficient Permission
+2026-10-16 15:28:39 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab5997: Insufficient Permission
+2026-10-16 15:28:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599a: Insufficient Permission
+2026-10-16 15:28:40 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab599d: Insufficient Permission
+2026-10-16 15:28:41 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a0: Insufficient Permission
+2026-10-16 15:28:41 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a3: Insufficient Permission
+2026-10-16 15:28:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a6: Insufficient Permission
+2026-10-16 15:28:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59a9: Insufficient Permission
+2026-10-16 15:28:42 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ac: Insufficient Permission
+2026-10-16 15:28:43 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59af: Insufficient Permission
+2026-10-16 15:28:43 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b2: Insufficient Permission
+2026-10-16 15:28:44 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b5: Insufficient Permission
+2026-10-16 15:28:44 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59b8: Insufficient Permission
+2026-10-16 15:28:44 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59bb: Insufficient Permission
+2026-10-16 15:28:45 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59be: Insufficient Permission
+2026-10-16 15:28:45 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c1: Insufficient Permission
+2026-10-16 15:28:45 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c4: Insufficient Permission
+2026-10-16 15:28:46 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59c7: Insufficient Permission
+2026-10-16 15:28:46 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ca: Insufficient Permission
+2026-10-16 15:28:47 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59cd: Insufficient Permission
+2026-10-16 15:28:47 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d0: Insufficient Permission
+2026-10-16 15:28:48 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d3: Insufficient Permission
+2026-10-16 15:28:48 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d6: Insufficient Permission
+2026-10-16 15:28:48 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59d9: Insufficient Permission
+2026-10-16 15:28:49 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59dc: Insufficient Permission
+2026-10-16 15:28:49 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59df: Insufficient Permission
+2026-10-16 15:28:50 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e2: Insufficient Permission
+2026-10-16 15:28:50 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e5: Insufficient Permission
+2026-10-16 15:28:51 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59e8: Insufficient Permission
+2026-10-16 15:28:51 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59eb: Insufficient Permission
+2026-10-16 15:28:52 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59ee: Insufficient Permission
+2026-10-16 15:28:52 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f1: Insufficient Permission
+2026-10-16 15:28:52 [error]: Bulk send failed for 6ad1ad4a98945ca9b7ab59f4: Insufficient Permission
