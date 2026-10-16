@@ -1,18 +1,26 @@
 services:
   - type: web
-    name: ai-job-manager-api
+    name: job-hunter-api
     env: node
     buildCommand: npm install
     startCommand: node server.js
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 5000
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET
         sync: false
-      - key: OPENAI_API_KEY
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: AI_PROVIDER
+        value: groq
+      - key: GROQ_API_KEY
         sync: false
+      - key: GROQ_MODEL
+        value: llama-3.1-8b-instant
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
@@ -21,3 +29,5 @@ services:
         sync: false
       - key: CLIENT_URL
         sync: false
+      - key: MAX_FILE_SIZE
+        value: 5242880
