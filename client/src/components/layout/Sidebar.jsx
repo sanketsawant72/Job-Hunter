@@ -6,6 +6,7 @@ import {
   Briefcase, User, SendHorizonal, XCircle, MailCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { getAssetUrl } from '../../services/api';
 
 const navItems = [
   { path: '/dashboard',          icon: LayoutDashboard, label: 'Dashboard' },
@@ -72,7 +73,7 @@ const Sidebar = ({ mobileOpen, onCloseMobile }) => {
           }
         >
           {user?.avatar ? (
-            <img src={user.avatar} alt="avatar" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+            <img src={getAssetUrl(user.avatar)} alt="avatar" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
           ) : (
             <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center flex-shrink-0">
               <User className="w-3.5 h-3.5 text-primary-600" />

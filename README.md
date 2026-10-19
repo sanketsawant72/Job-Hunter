@@ -164,7 +164,7 @@ All variables go in `server/.env`. Start from `server/.env.example`.
 
 | Variable | Required | Description |
 |---|---|---|
-| `PORT` | Yes | Server port — default `5000` |
+| `PORT` | No | Server port — defaults to `5000`; Render sets this automatically |
 | `NODE_ENV` | Yes | `development` or `production` |
 | `MONGODB_URI` | Yes | MongoDB connection string |
 | `JWT_SECRET` | Yes | Long random string for signing tokens |
@@ -190,19 +190,47 @@ All variables go in `server/.env`. Start from `server/.env.example`.
 
 ## Running the App
 
-**Terminal 1 — backend**
+Install the root development dependency and each app's dependencies once:
+
 ```bash
-cd server
-npm run dev
-# http://localhost:5000
+npm install
+npm install --prefix server
+npm install --prefix client
 ```
 
-**Terminal 2 — frontend**
+From the repository root, start both the backend and frontend together:
+
 ```bash
-cd client
 npm run dev
-# http://localhost:5173
 ```
+
+The frontend is at `http://localhost:5173` and the backend is at `http://localhost:5000`. To start only one, run `npm run dev:server` or `npm run dev:client` from the root.
+
+---
+
+## Deploying to Render and Netlify
+
+Deploy the backend and frontend as separate services. The root `render.yaml` configures Render to install and start the API from `server/`; `netlify.toml` configures Netlify to build the Vite app from `client/` and serve client-side routes.
+
+### 1. Deploy the API to Render
+
+1. Push this repository to GitHub and create a Render Blueprint from it. Render will discover the root `render.yaml`.
+2. Set the Blueprint's secret environment variables:
+   - `MONGODB_URI`: a MongoDB Atlas connection string. Allow Render's outbound IPs or enable Atlas network access as appropriate.
+   - `JWT_SECRET`: a unique, long random secret.
+   - `CLIENT_URL`: the production Netlify site origin, with no trailing slash.
+   - `GROQ_API_KEY`: required because the blueprint selects `AI_PROVIDER=groq`. To use another provider, change `AI_PROVIDER` and set its corresponding API key.
+   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI` if Gmail integration is needed. The redirect URI must be `https://<your-render-service>.onrender.com/api/gmail/callback` and must also be added to the Google OAuth client's authorized redirect URIs.
+3. Wait for the deploy to finish and verify `https://<your-render-service>.onrender.com/health` returns JSON with `"success": true`.
+
+### 2. Deploy the frontend to Netlify
+
+1. Import the same GitHub repository into Netlify. The root `netlify.toml` sets the base directory, build command, and publish directory.
+2. Add the build environment variable `VITE_API_URL=https://<your-render-service>.onrender.com/api` in the Netlify site settings. Set it for every deploy context you use; Netlify reads it at build time.
+3. Deploy, then set the Render service's `CLIENT_URL` to the exact Netlify production origin (for example, `https://your-site.netlify.app`) and redeploy/restart the API so its CORS setting takes effect.
+4. If using Gmail, confirm the Google OAuth redirect URI matches the deployed Render API URL exactly.
+
+The backend currently writes resumes and profile images to local disk. Render's default filesystem is ephemeral, so these files can be lost when the service restarts or redeploys. Use a paid Render persistent disk mounted at `server/uploads` or migrate uploads to object storage before relying on persistent user files.
 
 ---
 
@@ -351,22 +379,7 @@ Because the system makes only **one AI call per resume**, free-tier limits are r
 
 ---
 
-## Deployment
-
-### Backend → Render
-
-1. Push `server/` to GitHub
-2. New Web Service on [render.com](https://render.com) — build: `npm install`, start: `node server.js`
-3. Add all env vars; set `MONGODB_URI` to Atlas, `GOOGLE_REDIRECT_URI` to your Render URL
-4. Update the same redirect URI in Google Cloud Console
-
-### Frontend → Vercel
-
-1. Push `client/` to GitHub
-2. Import on [vercel.com](https://vercel.com) — framework preset: **Vite**
-3. Add env var: `VITE_API_URL=https://your-app.onrender.com/api`
-
-### Database → MongoDB Atlas
+## MongoDB Atlas
 
 1. Free M0 cluster at [mongodb.com/atlas](https://www.mongodb.com/atlas)
 2. Create a user, whitelist IPs (`0.0.0.0/0` for Render)

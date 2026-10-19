@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, FileText, Trash2, Eye, CheckCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { resumeAPI } from '../services/api';
+import { getAssetUrl, resumeAPI } from '../services/api';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 
@@ -102,7 +102,7 @@ const ResumePage = () => {
             </div>
             <div className="flex gap-2 flex-shrink-0">
               <a
-                href={resume.url}
+                href={getAssetUrl(resume.url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition-colors"

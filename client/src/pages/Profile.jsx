@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { Camera, User, Lock, Save, Eye, EyeOff } from 'lucide-react';
-import { authAPI } from '../services/api';
+import { authAPI, getAssetUrl } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
@@ -78,7 +78,7 @@ const Profile = () => {
         <div className="relative">
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center overflow-hidden">
             {avatarPreview ? (
-              <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
+              <img src={getAssetUrl(avatarPreview)} alt="avatar" className="w-full h-full object-cover" />
             ) : (
               <span className="text-3xl font-bold text-white">{user?.name?.[0]?.toUpperCase()}</span>
             )}

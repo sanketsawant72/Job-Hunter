@@ -6,6 +6,12 @@ import { toast } from 'react-toastify';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
+export const getAssetUrl = (url) => {
+  if (!url || /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(url)) return url;
+  if (!/^https?:\/\//i.test(API_URL)) return url;
+  return `${new URL(API_URL).origin}${url.startsWith('/') ? url : `/${url}`}`;
+};
+
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,

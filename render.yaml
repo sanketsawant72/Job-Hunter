@@ -1,14 +1,14 @@
 services:
   - type: web
     name: job-hunter-api
-    env: node
-    buildCommand: npm install
-    startCommand: node server.js
+    runtime: node
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5000
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET

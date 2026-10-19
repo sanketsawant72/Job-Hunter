@@ -4,6 +4,7 @@ import { Menu, Sun, Moon, Bell, Send, Users, Sparkles } from 'lucide-react';
 import Sidebar from './Sidebar';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { getAssetUrl } from '../../services/api';
 
 // Quick activity-log style notification center
 const MOCK_TIPS = [
@@ -99,7 +100,7 @@ const DashboardLayout = () => {
             {/* User avatar */}
             <div className="flex items-center gap-2 pl-2 border-l border-gray-100 dark:border-gray-800 ml-1">
               {user?.avatar ? (
-                <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
+                <img src={getAssetUrl(user.avatar)} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
                   {user?.name?.[0]?.toUpperCase()}
