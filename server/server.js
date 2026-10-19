@@ -56,8 +56,14 @@ const authLimiter = rateLimit({
 });
 
 // CORS
+const clientOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+  .map((origin) => new URL(origin).origin);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: clientOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -95,6 +101,14 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/drafts',          draftRoutes);
 app.use('/api/failed-emails',  failedEmailRoutes);
 app.use('/api/email-template', emailTemplateRoutes);
+
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'AI Job Manager API is running',
+    health: '/health'
+  });
+});
 
 // Health check
 app.get('/health', (req, res) => {

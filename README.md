@@ -208,9 +208,9 @@ The frontend is at `http://localhost:5173` and the backend is at `http://localho
 
 ---
 
-## Deploying to Render and Netlify
+## Deploying to Render and Netlify or Vercel
 
-Deploy the backend and frontend as separate services. The root `render.yaml` configures Render to install and start the API from `server/`; `netlify.toml` configures Netlify to build the Vite app from `client/` and serve client-side routes.
+Deploy the backend and frontend as separate services. The root `render.yaml` configures Render to install and start the API from `server/`; `netlify.toml` configures Netlify builds and client-side routes. The existing `client/vercel.json` supports Vercel deployments.
 
 ### 1. Deploy the API to Render
 
@@ -218,16 +218,16 @@ Deploy the backend and frontend as separate services. The root `render.yaml` con
 2. Set the Blueprint's secret environment variables:
    - `MONGODB_URI`: a MongoDB Atlas connection string. Allow Render's outbound IPs or enable Atlas network access as appropriate.
    - `JWT_SECRET`: a unique, long random secret.
-   - `CLIENT_URL`: the production Netlify site origin, with no trailing slash.
+   - `CLIENT_URL`: the exact production frontend origin, such as `https://your-site.netlify.app` or `https://your-site.vercel.app`. To allow additional exact origins (such as a custom domain), separate them with commas. Trailing slashes and paths are normalized.
    - `GROQ_API_KEY`: required because the blueprint selects `AI_PROVIDER=groq`. To use another provider, change `AI_PROVIDER` and set its corresponding API key.
    - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI` if Gmail integration is needed. The redirect URI must be `https://<your-render-service>.onrender.com/api/gmail/callback` and must also be added to the Google OAuth client's authorized redirect URIs.
 3. Wait for the deploy to finish and verify `https://<your-render-service>.onrender.com/health` returns JSON with `"success": true`.
 
 ### 2. Deploy the frontend to Netlify
 
-1. Import the same GitHub repository into Netlify. The root `netlify.toml` sets the base directory, build command, and publish directory.
-2. Add the build environment variable `VITE_API_URL=https://<your-render-service>.onrender.com/api` in the Netlify site settings. Set it for every deploy context you use; Netlify reads it at build time.
-3. Deploy, then set the Render service's `CLIENT_URL` to the exact Netlify production origin (for example, `https://your-site.netlify.app`) and redeploy/restart the API so its CORS setting takes effect.
+1. Import the same GitHub repository into Netlify or deploy `client/` through Vercel. Netlify uses the root `netlify.toml`; Vercel uses the existing `client/vercel.json`.
+2. Set the frontend build variable `VITE_API_URL=https://<your-render-service>.onrender.com/api` in the hosting provider's site settings. Set it for every deploy context you use; it is read at build time. The client also adds `/api` if only the Render host is configured.
+3. Set the Render service's `CLIENT_URL` to the exact production frontend origin (without a trailing slash) and redeploy/restart the API so its CORS setting takes effect.
 4. If using Gmail, confirm the Google OAuth redirect URI matches the deployed Render API URL exactly.
 
 The backend currently writes resumes and profile images to local disk. Render's default filesystem is ephemeral, so these files can be lost when the service restarts or redeploys. Use a paid Render persistent disk mounted at `server/uploads` or migrate uploads to object storage before relying on persistent user files.

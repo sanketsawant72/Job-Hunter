@@ -4,7 +4,10 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const configuredApiUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
+const API_URL = /^https?:\/\//i.test(configuredApiUrl) && !configuredApiUrl.endsWith('/api')
+  ? `${configuredApiUrl}/api`
+  : configuredApiUrl;
 
 export const getAssetUrl = (url) => {
   if (!url || /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(url)) return url;

@@ -28,6 +28,6 @@ services:
       - key: GOOGLE_REDIRECT_URI
         sync: false
       - key: CLIENT_URL
-        sync: false
+        value: https://job-hunter-4ztdy48ov-sankets-projects-06f42331.vercel.app
       - key: MAX_FILE_SIZE
         value: 5242880
