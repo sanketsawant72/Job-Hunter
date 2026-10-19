@@ -218,7 +218,7 @@ Deploy the backend and frontend as separate services. The root `render.yaml` con
 2. Set the Blueprint's secret environment variables:
    - `MONGODB_URI`: a MongoDB Atlas connection string. Allow Render's outbound IPs or enable Atlas network access as appropriate.
    - `JWT_SECRET`: a unique, long random secret.
-   - `CLIENT_URL`: the exact production frontend origin, such as `https://your-site.netlify.app` or `https://your-site.vercel.app`. To allow additional exact origins (such as a custom domain), separate them with commas. Trailing slashes and paths are normalized.
+   - `CLIENT_URL`: optional additional exact frontend origins, such as a custom domain. Separate multiple origins with commas. Trailing slashes and paths are normalized. The current Vercel frontend origin is allowed by default.
    - `GROQ_API_KEY`: required because the blueprint selects `AI_PROVIDER=groq`. To use another provider, change `AI_PROVIDER` and set its corresponding API key.
    - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI` if Gmail integration is needed. The redirect URI must be `https://<your-render-service>.onrender.com/api/gmail/callback` and must also be added to the Google OAuth client's authorized redirect URIs.
 3. Wait for the deploy to finish and verify `https://<your-render-service>.onrender.com/health` returns JSON with `"success": true`.

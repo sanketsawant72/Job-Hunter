@@ -56,11 +56,15 @@ const authLimiter = rateLimit({
 });
 
 // CORS
-const clientOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+const clientOrigins = (process.env.CLIENT_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : ''))
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean)
   .map((origin) => new URL(origin).origin);
+
+if (process.env.NODE_ENV === 'production') {
+  clientOrigins.push('https://job-hunter-4ztdy48ov-sankets-projects-06f42331.vercel.app');
+}
 
 app.use(cors({
   origin: clientOrigins,
