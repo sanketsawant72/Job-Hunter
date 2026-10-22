@@ -17,6 +17,7 @@ const EmailReview = () => {
   const [regenerating, setRegenerating] = useState(false);
   const [editing, setEditing] = useState(false);
   const [resume, setResume] = useState(null);
+  const [attachResume, setAttachResume] = useState(true);
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [signature, setSignature] = useState('');
@@ -35,6 +36,7 @@ const EmailReview = () => {
         setBody(d.body);
         setSignature(d.signature || '');
         setResume(resumeRes.data.data);
+        setAttachResume(d.gmailDraftId ? !!d.resumeAttached : !!resumeRes.data.data);
       } catch {
         toast.error('Draft not found');
         navigate('/bulk-send');
@@ -73,9 +75,9 @@ const EmailReview = () => {
     try {
       // Save first
       await draftAPI.update(draftId, { subject, body, signature });
-      await gmailAPI.createDraft({ draftId });
+      const gmailDraftRes = await gmailAPI.createDraft({ draftId, attachResume: !!resume && attachResume });
       toast.success('Gmail draft created! Check your Gmail Drafts folder.');
-      setDraft(prev => ({ ...prev, status: 'approved' }));
+      setDraft(prev => ({ ...prev, status: 'approved', gmailDraftId: gmailDraftRes.data.data.gmailDraftId, resumeAttached: !!resume && attachResume }));
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to create Gmail draft';
       if (msg.includes('Gmail not connected') || msg.includes('connect Gmail')) {
@@ -94,7 +96,7 @@ const EmailReview = () => {
     setSending(true);
     try {
       await draftAPI.update(draftId, { subject, body, signature });
-      await gmailAPI.send({ draftId });
+      await gmailAPI.send({ draftId, attachResume: !!resume && attachResume });
       toast.success(`Email sent to ${draft?.recruiter?.email}!`);
       navigate('/applications');
     } catch (err) {
@@ -263,14 +265,26 @@ const EmailReview = () => {
           </div>
 
           {/* Resume attachment */}
-          <div className="flex items-center gap-2 text-sm">
-            <Paperclip className="w-4 h-4 text-gray-400" />
-            {resume ? (
-              <span className="text-green-600 dark:text-green-400">
-                <span className="font-medium">{resume.originalName}</span> will be attached
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-3">
+            <label className={`flex items-center gap-2 text-sm ${resume && !draft?.gmailDraftId ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'}`}>
+              <input
+                type="checkbox"
+                checked={draft?.gmailDraftId ? !!draft.resumeAttached : !!resume && attachResume}
+                disabled={!resume || !!draft?.gmailDraftId}
+                onChange={e => setAttachResume(e.target.checked)}
+                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <Paperclip className="w-4 h-4 text-gray-400" />
+              <span>
+                <span className="font-medium text-gray-800 dark:text-gray-200">Attach resume</span>
+                {resume && <span className="text-gray-500"> — {resume.originalName}</span>}
               </span>
-            ) : (
-              <span className="text-amber-500">No resume attached. Upload one in the Resume page.</span>
+            </label>
+            {!resume && (
+              <p className="ml-6 mt-1 text-xs text-amber-500">Upload a resume from the Resume page to attach it.</p>
+            )}
+            {draft?.gmailDraftId && (
+              <p className="ml-6 mt-1 text-xs text-gray-500">{draft.resumeAttached ? 'Resume attachment is fixed in this saved Gmail draft.' : 'No resume is attached to this saved Gmail draft.'}</p>
             )}
           </div>
         </div>

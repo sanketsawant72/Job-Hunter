@@ -45,7 +45,7 @@ async function getAuthClient(settings, userId) {
  * Network / rate-limit errors are retried up to maxRetries times with
  * exponential backoff.
  */
-async function sendWithRetry({ authClient, draft, resume, maxRetries = 3 }) {
+async function sendWithRetry({ authClient, draft, resume, includeResume = true, maxRetries = 3 }) {
   const NON_RETRYABLE = ['invalid_grant', 'insufficientPermissions', 'Insufficient Permission'];
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -59,8 +59,8 @@ async function sendWithRetry({ authClient, draft, resume, maxRetries = 3 }) {
           to:         draft.recruiter.email,
           subject:    draft.subject,
           body:       draft.body + (draft.signature ? `\n\n${draft.signature}` : ''),
-          resumePath: resume?.path         || null,
-          resumeName: resume?.originalName || null
+          resumePath: includeResume ? resume?.path || null : null,
+          resumeName: includeResume ? resume?.originalName || null : null
         });
       }
       return result;
@@ -219,7 +219,7 @@ exports.getStatus = async (req, res, next) => {
 // @route  POST /api/gmail/create-draft
 exports.createDraft = async (req, res, next) => {
   try {
-    const { draftId } = req.body;
+    const { draftId, attachResume } = req.body;
 
     const settings = await Settings.findOne({ user: req.user.id }).select('+googleAccessToken +googleRefreshToken');
     if (!settings?.gmailConnected) {
@@ -237,12 +237,12 @@ exports.createDraft = async (req, res, next) => {
       to:         draft.recruiter.email,
       subject:    draft.subject,
       body:       draft.body + (draft.signature ? `\n\n${draft.signature}` : ''),
-      resumePath: resume?.path         || null,
-      resumeName: resume?.originalName || null
+      resumePath: resume && attachResume !== false ? resume.path : null,
+      resumeName: resume && attachResume !== false ? resume.originalName : null
     });
 
     draft.gmailDraftId   = gmailDraftId;
-    draft.resumeAttached = !!resume;
+    draft.resumeAttached = !!resume && attachResume !== false;
     draft.status         = 'approved';
     await draft.save();
 
@@ -264,7 +264,7 @@ exports.createDraft = async (req, res, next) => {
 // @route  POST /api/gmail/send
 exports.sendEmail = async (req, res, next) => {
   try {
-    const { draftId } = req.body;
+    const { draftId, attachResume } = req.body;
 
     const settings = await Settings.findOne({ user: req.user.id }).select('+googleAccessToken +googleRefreshToken');
     if (!settings?.gmailConnected) {
@@ -277,10 +277,11 @@ exports.sendEmail = async (req, res, next) => {
     const resume     = await Resume.findOne({ user: req.user.id, isActive: true });
     const authClient = await getAuthClient(settings, req.user.id);
 
-    const result = await sendWithRetry({ authClient, draft, resume });
+    const result = await sendWithRetry({ authClient, draft, resume, includeResume: attachResume !== false });
 
     const sentAt = new Date();
     draft.status       = 'sent';
+    draft.resumeAttached = draft.gmailDraftId ? !!draft.resumeAttached : !!resume && attachResume !== false;
     draft.gmailMessageId = result.messageId;
     draft.sentAt       = sentAt;
     await draft.save();
