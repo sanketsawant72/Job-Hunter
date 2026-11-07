@@ -76,14 +76,28 @@ const UploadRecruiters = () => {
         }
       }, 600);
 
-      const res = await recruiterAPI.upload(formData);
+      const res = await recruiterAPI.upload(formData, { skipAuthRedirect: true });
       clearInterval(interval);
       setProgress(100);
       setPhase('done');
       setResult(res.data);
       toast.success(res.data.message);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Upload failed');
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error(err.response?.data?.message || 'Upload failed');
+      }
       setPhase('');
     } finally {
       setLoading(false);
@@ -92,9 +106,9 @@ const UploadRecruiters = () => {
 
   const downloadTemplate = () => {
     const csv = [
-      'Recruiter Name,Company,Email,Role,LinkedIn,Location,Notes',
-      'Jane Smith,Google,jane@google.com,Software Engineer,https://linkedin.com/in/jane,Mountain View CA,Hiring for ML team',
-      'John Doe,Microsoft,john.doe@microsoft.com,Frontend Dev,,Hyderabad,'
+      'Recruiter Name,Company,Email,Role,Job Description,LinkedIn,Location,Notes',
+      'Jane Smith,Google,jane@google.com,Software Engineer,"Build scalable backend services using Java and Spring Boot",https://linkedin.com/in/jane,Mountain View CA,Hiring for ML team',
+      'John Doe,Microsoft,john.doe@microsoft.com,Frontend Dev,"Develop accessible React interfaces",,Hyderabad,'
     ].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url  = URL.createObjectURL(blob);
@@ -134,7 +148,7 @@ const UploadRecruiters = () => {
       <div className="card p-4 space-y-3">
         <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Supported Columns</p>
         <div className="flex flex-wrap gap-2">
-          {['Recruiter Name', 'Company *', 'Email *', 'Role', 'LinkedIn', 'Location', 'Notes'].map(col => (
+          {['Recruiter Name', 'Company *', 'Email *', 'Role', 'Job Description', 'LinkedIn', 'Location', 'Notes'].map(col => (
             <span key={col} className={`badge ${col.endsWith('*') ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
               {col}
             </span>

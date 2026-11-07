@@ -16,9 +16,21 @@ function buildSignatureFromProfile(settings) {
 
   const lines = [`Best regards,\n${name}`];
   if (phone) lines.push(phone);
-  if (linkedin) lines.push(linkedin);
-  if (github) lines.push(github);
-  if (portfolio) lines.push(portfolio);
+  const links = [
+    { label: 'LinkedIn', url: linkedin },
+    { label: 'GitHub', url: github },
+    { label: 'Portfolio', url: portfolio },
+    ...(settings.socialLinks || []),
+  ];
+  const seen = new Set();
+  links.forEach(({ label, url }) => {
+    const normalized = normalizeUrl(url || '');
+    const key = normalized.toLowerCase().replace(/\/+$/, '');
+    if (normalized && !seen.has(key)) {
+      lines.push(`${label || 'Website'}: ${normalized}`);
+      seen.add(key);
+    }
+  });
 
   return lines.join('\n');
 }
@@ -58,7 +70,7 @@ exports.updateSettings = async (req, res, next) => {
     const allowed = [
       'candidateName', 'college', 'degree', 'phone', 'location',
       'skills', 'experience', 'projects', 'github', 'linkedin',
-      'portfolio', 'emailSignature', 'resumeSummary', 'aiPromptTemplate',
+      'portfolio', 'socialLinks', 'emailSignature', 'resumeSummary', 'aiPromptTemplate',
       'notifyOnReply', 'notifyOnSend'
     ];
 
@@ -76,6 +88,17 @@ exports.updateSettings = async (req, res, next) => {
     ['linkedin', 'github', 'portfolio'].forEach(key => {
       if (updateData[key]) updateData[key] = normalizeUrl(updateData[key]);
     });
+    if (updateData.socialLinks !== undefined) {
+      if (!Array.isArray(updateData.socialLinks)) {
+        return res.status(400).json({ success: false, message: 'Social links must be provided as a list.' });
+      }
+      updateData.socialLinks = updateData.socialLinks
+        .map(link => ({
+          label: String(link?.label || '').trim(),
+          url: normalizeUrl(String(link?.url || '').trim()),
+        }))
+        .filter(link => link.label && link.url);
+    }
 
     const settings = await Settings.findOneAndUpdate(
       { user: req.user.id },
@@ -84,7 +107,7 @@ exports.updateSettings = async (req, res, next) => {
     );
 
     // Auto-rebuild signature from profile if any profile field changed
-    const profileFields = ['candidateName', 'phone', 'linkedin', 'github', 'portfolio'];
+    const profileFields = ['candidateName', 'phone', 'linkedin', 'github', 'portfolio', 'socialLinks'];
     const profileChanged = profileFields.some(f => updateData[f] !== undefined);
     if (profileChanged && !updateData.emailSignature) {
       // Only auto-rebuild if the user didn't explicitly edit the signature this save
@@ -110,6 +133,9 @@ exports.fixSignature = async (req, res, next) => {
     settings.linkedin = normalizeUrl(settings.linkedin);
     settings.github = normalizeUrl(settings.github);
     settings.portfolio = normalizeUrl(settings.portfolio);
+    settings.socialLinks = (settings.socialLinks || [])
+      .map(link => ({ label: link.label, url: normalizeUrl(link.url) }))
+      .filter(link => link.label && link.url);
     await settings.save();
 
     res.json({ success: true, message: 'Signature rebuilt from profile', data: { emailSignature: settings.emailSignature } });

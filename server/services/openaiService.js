@@ -128,7 +128,7 @@ const generateWithGroq = async (apiKey, promptVars, customTemplate) => {
   });
   const { systemPrompt, userPrompt } = buildPrompts(promptVars, customTemplate);
 
-  const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+  const model = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
 
   const response = await client.chat.completions.create({
     model,

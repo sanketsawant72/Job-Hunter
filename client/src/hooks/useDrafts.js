@@ -14,7 +14,7 @@ export const useDrafts = (initialParams = {}) => {
   const fetch = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await draftAPI.getAll(params);
+      const res = await draftAPI.getAll(params, { skipAuthRedirect: true });
       setDrafts(res.data.data);
       setPagination(res.data.pagination);
     } catch {

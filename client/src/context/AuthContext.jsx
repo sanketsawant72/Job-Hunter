@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
       const storedToken = localStorage.getItem('token');
       if (!storedToken) { setLoading(false); return; }
       try {
-        const { data } = await authAPI.getProfile();
+        const { data } = await authAPI.getProfile({ skipAuthRedirect: true });
         setUser(data.user);
         localStorage.setItem('user', JSON.stringify(data.user));
       } catch {

@@ -64,7 +64,7 @@ exports.getRecruiter = async (req, res, next) => {
 // ── POST /api/recruiters ────────────────────────────────────────────────────
 exports.createRecruiter = async (req, res, next) => {
   try {
-    const { name, company, email, role, linkedin, location, notes, tags } = req.body;
+    const { name, company, email, role, jobDescription, linkedin, location, notes, tags } = req.body;
 
     const existing = await Recruiter.findOne({ user: req.user.id, email: email.toLowerCase() });
     if (existing) {
@@ -72,7 +72,7 @@ exports.createRecruiter = async (req, res, next) => {
     }
 
     const recruiter = await Recruiter.create({
-      user: req.user.id, name, company, email, role, linkedin, location, notes,
+      user: req.user.id, name, company, email, role, jobDescription, linkedin, location, notes,
       tags: tags || [], source: 'manual',
       verificationStatus: 'SKIPPED', isValid: true
     });
@@ -149,6 +149,11 @@ exports.uploadRecruiters = async (req, res, next) => {
       const company  = (row['Company']        || row['company']                     || '').trim();
       const email    = (row['Email']          || row['email']                       || '').trim().toLowerCase();
       const role     = (row['Role']           || row['role']     || row['Position'] || '').trim();
+      const jobDescription = (
+        row['Job Description'] || row['job description'] ||
+        row['Job Requirements'] || row['job requirements'] ||
+        row['Requirements'] || row['requirements'] || ''
+      ).trim();
       const linkedin = (row['LinkedIn']       || row['linkedin']                    || '').trim();
       const location = (row['Location']       || row['location']                   || '').trim();
       const notes    = (row['Notes']          || row['notes']                       || '').trim();
@@ -164,7 +169,7 @@ exports.uploadRecruiters = async (req, res, next) => {
         continue;
       }
 
-      validRows.push({ name: resolvedName, company, email, role, linkedin, location, notes });
+      validRows.push({ name: resolvedName, company, email, role, jobDescription, linkedin, location, notes });
     }
 
     // ── Step 2: Abstract API email verification (batch) ───
@@ -313,6 +318,7 @@ exports.exportRecruiters = async (req, res, next) => {
         'Company':             r.company,
         'Email':               r.email,
         'Role':                r.role,
+        'Job Description':     r.jobDescription,
         'LinkedIn':            r.linkedin,
         'Location':            r.location,
         'Status':              r.status,

@@ -52,16 +52,22 @@ const Dashboard = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await dashboardAPI.get();
+        const res = await dashboardAPI.get({ skipAuthRedirect: true });
         setData(res.data.data);
-      } catch (e) {
-        console.error('Dashboard load error:', e);
+      } catch (err) {
+        const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+        if (isAuthError) {
+          toast.error('Session expired. Please log in again.');
+          setTimeout(() => navigate('/login'), 1500);
+        } else {
+          console.error('Dashboard load error:', err);
+        }
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, []);
+  }, [navigate]);
 
   // ── theme-aware colours (re-computed when isDark changes) ─────────────
   const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';

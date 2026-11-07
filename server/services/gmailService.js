@@ -91,7 +91,11 @@ const encodeEmail = (to, subject, body, from, attachmentPath = null, attachmentN
 
   let emailContent;
 
-  if (attachmentPath && fs.existsSync(attachmentPath)) {
+  if (attachmentPath && !fs.existsSync(attachmentPath)) {
+    throw new Error('Resume attachment file was not found on the server. Upload the resume again before sending.');
+  }
+
+  if (attachmentPath) {
     const attachmentData = fs.readFileSync(attachmentPath).toString('base64');
     const ext = path.extname(attachmentPath).toLowerCase();
     const mimeType = ext === '.pdf' ? 'application/pdf'

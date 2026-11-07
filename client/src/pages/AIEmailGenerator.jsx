@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, Users, Search, CheckCircle, AlertCircle, Send, ChevronLeft, ChevronRight, Calendar, MailCheck } from 'lucide-react';
+import { Sparkles, Users, Search, CheckCircle, AlertCircle, Send, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format, isToday, isYesterday, startOfDay } from 'date-fns';
-import { recruiterAPI, aiAPI, emailTemplateAPI } from '../services/api';
+import { recruiterAPI, aiAPI } from '../services/api';
 import Badge from '../components/ui/Badge';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
@@ -41,32 +41,12 @@ const AIEmailGenerator = () => {
   const [selectingAll, setSelectingAll] = useState(false);
   const [generating, setGenerating]     = useState(false);
   const [progress, setProgress]         = useState({ current: 0, total: 0, estimatedSecsLeft: 0 });
-  const progressTimerRef                = useRef(null);
   const [results, setResults]           = useState([]);
   const [pagination, setPagination]     = useState(null);
   const [page, setPage]                 = useState(1);
-  const [masterTemplate, setMasterTemplate] = useState(null);
-  const [templateLoading, setTemplateLoading] = useState(true);
-
   useEffect(() => {
     if (location.state?.recruiterId) setSelected(new Set([location.state.recruiterId]));
   }, [location.state]);
-
-  // Load master template status
-  useEffect(() => {
-    const loadTemplate = async () => {
-      setTemplateLoading(true);
-      try {
-        const res = await emailTemplateAPI.get();
-        setMasterTemplate(res.data.data.template);
-      } catch {
-        // non-fatal
-      } finally {
-        setTemplateLoading(false);
-      }
-    };
-    loadTemplate();
-  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -74,14 +54,22 @@ const AIEmailGenerator = () => {
       try {
         const params = { page, limit: PAGE_SIZE, status: 'new' };
         if (search) params.search = search;
-        const res = await recruiterAPI.getAll(params);
+        const res = await recruiterAPI.getAll(params, { skipAuthRedirect: true });
         setRecruiters(res.data.data);
         setPagination(res.data.pagination);
-      } catch { toast.error('Failed to load recruiters'); }
+      } catch (err) {
+        const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+        if (isAuthError) {
+          toast.error('Session expired. Please log in again.');
+          setTimeout(() => navigate('/login'), 1500);
+        } else {
+          toast.error('Failed to load recruiters');
+        }
+      }
       finally { setLoading(false); }
     };
     load();
-  }, [page, search]);
+  }, [page, search, navigate]);
 
   useEffect(() => { setPage(1); }, [search]);
 
@@ -114,65 +102,118 @@ const AIEmailGenerator = () => {
     try {
       const params = { page: 1, limit: 10000, status: 'new' };
       if (search) params.search = search;
-      const res = await recruiterAPI.getAll(params);
+      const res = await recruiterAPI.getAll(params, { skipAuthRedirect: true });
       const allIds = res.data.data.map(r => r._id);
       setSelected(new Set(allIds));
       toast.success(`Selected all ${allIds.length} recruiters`);
-    } catch { toast.error('Failed to select all recruiters'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Failed to select all recruiters');
+      }
+    }
     finally { setSelectingAll(false); }
   };
 
   const handleGenerate = async () => {
     if (selected.size === 0) { toast.warning('Please select at least one recruiter'); return; }
 
-    // Guard: master template must exist first
-    if (!masterTemplate) {
-      toast.error('No master email template found. Please generate one on the Email Template page first.');
-      navigate('/email-template');
-      return;
-    }
-
     setGenerating(true);
     setResults([]);
     const ids = Array.from(selected);
     const total = ids.length;
 
-    // Batch progress — no AI calls, just DB writes, so it's fast
-    if (total > 1) {
-      setProgress({ current: 0, total, estimatedSecsLeft: Math.ceil(total * 0.1) });
-      progressTimerRef.current = setInterval(() => {
-        setProgress(prev => ({
-          ...prev,
-          current: Math.min(prev.current + 5, total - 1),
-        }));
-      }, 300);
-    }
-
     try {
       if (ids.length === 1) {
-        const res = await aiAPI.generate({ recruiterId: ids[0] });
+        const res = await aiAPI.generate({ recruiterId: ids[0] }, { skipAuthRedirect: true });
         toast.success('Draft created!');
         navigate(`/email-review/${res.data.data.draft._id}`);
       } else {
-        const res = await aiAPI.generateBatch({ recruiterIds: ids });
-        clearInterval(progressTimerRef.current);
-        setResults(res.data.data);
-        const successful = res.data.data.filter(r => r.success).length;
-        const failed     = res.data.data.filter(r => !r.success).length;
-        setProgress({ current: total, total, estimatedSecsLeft: 0 });
-        if (failed === 0) toast.success(`${successful} drafts created — master template reused, no extra AI calls!`);
-        else toast.warning(`Created ${successful}/${total}. ${failed} failed.`);
+        const generatedResults = [];
+        setProgress({ current: 0, total, estimatedSecsLeft: total * 3 });
+        for (const [index, recruiterId] of ids.entries()) {
+          try {
+            const res = await aiAPI.generate({ recruiterId }, { skipAuthRedirect: true });
+            generatedResults.push({
+              recruiterId,
+              success: true,
+              draftId: res.data.data.draft._id
+            });
+          } catch (err) {
+            const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+            if (isAuthError) {
+              generatedResults.push({
+                recruiterId,
+                success: false,
+                reason: 'Session expired'
+              });
+              // Break early - no point continuing
+              setResults([...generatedResults]);
+              break;
+            }
+            generatedResults.push({
+              recruiterId,
+              success: false,
+              reason: err.response?.data?.message || 'Email generation failed'
+            });
+          }
+          setResults([...generatedResults]);
+          setProgress({
+            current: index + 1,
+            total,
+            estimatedSecsLeft: Math.max(0, (total - index - 1) * 3)
+          });
+        }
+        const successful = generatedResults.filter(r => r.success).length;
+        const failed     = generatedResults.filter(r => !r.success).length;
+
+        // Check if any auth error occurred
+        const hasAuthError = generatedResults.some(r => r.reason === 'Session expired');
+        if (hasAuthError) {
+          toast.error(
+            <div>
+              <p className="font-semibold mb-1">Session expired</p>
+              <p className="text-sm mb-2">Please log in again to continue.</p>
+              <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+                Log In →
+              </button>
+            </div>,
+            { autoClose: false }
+          );
+        } else if (failed === 0) {
+          toast.success(`${successful} AI-personalized drafts created!`);
+        } else {
+          toast.warning(`Created ${successful}/${total}. ${failed} failed.`);
+        }
       }
     } catch (err) {
-      clearInterval(progressTimerRef.current);
-      if (err.response?.data?.needsTemplate) {
-        toast.error('Please generate a master email template first.');
-        navigate('/email-template');
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
       } else {
         toast.error(err.response?.data?.message || 'Draft creation failed.');
       }
     } finally {
-      clearInterval(progressTimerRef.current);
       setGenerating(false);
     }
   };
@@ -186,7 +227,7 @@ const AIEmailGenerator = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">AI Email Generator</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Personalized AI Email Generator</h1>
           <p className="text-gray-500 text-sm mt-0.5">Select recruiters and generate personalized emails</p>
         </div>
         {selected.size > 0 && (
@@ -202,28 +243,10 @@ const AIEmailGenerator = () => {
         <div className="flex items-start gap-3">
           <Sparkles className="w-5 h-5 text-primary-500 mt-0.5 flex-shrink-0" />
           <p className="text-sm text-primary-600 dark:text-primary-400">
-            Select recruiters → drafts are created instantly from your <strong>master email template</strong> → Review → Send via Gmail.
-            <span className="font-semibold"> No extra AI calls per recruiter — 1 template reused for all.</span>
+            Every draft gets its own AI generation using your resume, the recruiter's job description and role, and your resume/profile links. Review each email before sending it with your resume attached.
           </p>
         </div>
       </div>
-
-      {/* No-template warning */}
-      {!templateLoading && !masterTemplate && (
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-          <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">No master email template yet</p>
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
-              You need to generate a master email template before creating drafts.
-              It only takes one AI call and is reused for all companies.
-            </p>
-          </div>
-          <button onClick={() => navigate('/email-template')} className="btn-primary text-sm flex-shrink-0">
-            <MailCheck className="w-4 h-4" /> Set up template
-          </button>
-        </div>
-      )}
 
       {/* Progress */}
       {generating && progress.total > 1 && (
@@ -240,7 +263,7 @@ const AIEmailGenerator = () => {
               style={{ width: `${progress.total > 0 ? (progress.current / progress.total) * 100 : 0}%` }}
             />
           </div>
-          <p className="text-xs text-gray-400">Cloning master template into drafts — no AI calls made.</p>
+          <p className="text-xs text-gray-400">Generating one tailored email per recruiter. Large batches may take a few minutes.</p>
         </div>
       )}
 

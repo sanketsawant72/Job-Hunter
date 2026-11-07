@@ -57,21 +57,35 @@ const EditModal = ({ record, onClose, onSaved }) => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await failedEmailAPI.update(record._id, { email, name, company });
+      await failedEmailAPI.update(record._id, { email, name, company }, { skipAuthRedirect: true });
       toast.success('Record updated');
       onSaved();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Save failed');
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => window.location.href = '/login'} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error(err.response?.data?.message || 'Save failed');
+      }
     } finally { setSaving(false); }
   };
 
   const handleReverify = async () => {
     if (email !== record.email) {
-      await failedEmailAPI.update(record._id, { email, name, company });
+      await failedEmailAPI.update(record._id, { email, name, company }, { skipAuthRedirect: true });
     }
     setVerifying(true);
     try {
-      const res = await failedEmailAPI.reverify(record._id);
+      const res = await failedEmailAPI.reverify(record._id, { skipAuthRedirect: true });
       const { deliverability, promoted } = res.data.data;
       if (promoted) {
         toast.success(`✅ Verified as ${deliverability} — added to Recruiters!`);
@@ -81,7 +95,21 @@ const EditModal = ({ record, onClose, onSaved }) => {
       onSaved();
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Re-verification failed');
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => window.location.href = '/login'} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error(err.response?.data?.message || 'Re-verification failed');
+      }
     } finally { setVerifying(false); }
   };
 
@@ -150,15 +178,23 @@ const FailedEmails = () => {
       if (filter === 'resolved')    params.isResolved = 'true';
 
       const [listRes, statsRes] = await Promise.all([
-        failedEmailAPI.getAll(params),
-        failedEmailAPI.getStats()
+        failedEmailAPI.getAll(params, { skipAuthRedirect: true }),
+        failedEmailAPI.getStats({ skipAuthRedirect: true })
       ]);
       setRecords(listRes.data.data);
       setPagination(listRes.data.pagination);
       setStats(statsRes.data.data);
-    } catch { toast.error('Failed to load failed emails'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error('Session expired. Please log in again.');
+        setTimeout(() => navigate('/login'), 1500);
+      } else {
+        toast.error('Failed to load failed emails');
+      }
+    }
     finally { setLoading(false); }
-  }, [page, search, filter]);
+  }, [page, search, filter, navigate]);
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { setPage(1); }, [search, filter]);
@@ -166,20 +202,52 @@ const FailedEmails = () => {
   const handleDelete = async () => {
     setDeleteLoading(true);
     try {
-      await failedEmailAPI.delete(deleteId);
+      await failedEmailAPI.delete(deleteId, { skipAuthRedirect: true });
       toast.success('Deleted');
       setDeleteId(null);
       load();
-    } catch { toast.error('Delete failed'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Delete failed');
+      }
+    }
     finally { setDeleteLoading(false); }
   };
 
   const handleResolve = async (id) => {
     try {
-      await failedEmailAPI.resolve(id, 'Manually resolved by user');
+      await failedEmailAPI.resolve(id, 'Manually resolved by user', { skipAuthRedirect: true });
       toast.success('Marked as resolved');
       load();
-    } catch { toast.error('Failed to resolve'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Failed to resolve');
+      }
+    }
   };
 
   // ── Resend a failed-send record ──────────────────────────
@@ -190,14 +258,28 @@ const FailedEmails = () => {
     }
     setResendingId(record._id);
     try {
-      await gmailAPI.resendFailed(record._id);
+      await gmailAPI.resendFailed(record._id, { skipAuthRedirect: true });
       toast.success(`Email resent to ${record.email}!`);
       // Mark as resolved in UI immediately
       await failedEmailAPI.resolve(record._id, 'Resent successfully');
       load();
     } catch (err) {
       const msg = err.response?.data?.message || 'Resend failed';
-      toast.error(msg);
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error(msg);
+      }
       // Reload to show updated failure reason
       load();
     } finally {

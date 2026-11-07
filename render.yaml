@@ -20,7 +20,7 @@ services:
       - key: GROQ_API_KEY
         sync: false
       - key: GROQ_MODEL
-        value: llama-3.1-8b-instant
+        value: openai/gpt-oss-20b
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
@@ -28,6 +28,6 @@ services:
       - key: GOOGLE_REDIRECT_URI
         sync: false
       - key: CLIENT_URL
-        value: https://job-hunter-4ztdy48ov-sankets-projects-06f42331.vercel.app
+        sync: false
       - key: MAX_FILE_SIZE
         value: 5242880

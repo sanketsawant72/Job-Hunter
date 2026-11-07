@@ -34,15 +34,21 @@ const Recruiters = () => {
       if (search) params.search = search;
       if (status !== 'all') params.status = status;
       if (favorite) params.favorite = 'true';
-      const res = await recruiterAPI.getAll(params);
+      const res = await recruiterAPI.getAll(params, { skipAuthRedirect: true });
       setRecruiters(res.data.data);
       setPagination(res.data.pagination);
-    } catch {
-      toast.error('Failed to load recruiters');
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error('Session expired. Please log in again.');
+        setTimeout(() => navigate('/login'), 1500);
+      } else {
+        toast.error('Failed to load recruiters');
+      }
     } finally {
       setLoading(false);
     }
-  }, [page, search, status, favorite]);
+  }, [page, search, status, favorite, navigate]);
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { setPage(1); }, [search, status, favorite]);
@@ -50,29 +56,77 @@ const Recruiters = () => {
   const handleDelete = async () => {
     setDeleteLoading(true);
     try {
-      await recruiterAPI.delete(deleteId);
+      await recruiterAPI.delete(deleteId, { skipAuthRedirect: true });
       toast.success('Recruiter deleted');
       setDeleteId(null);
       load();
-    } catch { toast.error('Delete failed'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Delete failed');
+      }
+    }
     finally { setDeleteLoading(false); }
   };
 
   const handleToggleFavorite = async (id, e) => {
     e.stopPropagation();
     try {
-      await recruiterAPI.toggleFavorite(id);
+      await recruiterAPI.toggleFavorite(id, { skipAuthRedirect: true });
       setRecruiters(prev => prev.map(r => r._id === id ? { ...r, isFavorite: !r.isFavorite } : r));
-    } catch { toast.error('Failed to update favorite'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Failed to update favorite');
+      }
+    }
   };
 
   const handleExport = async () => {
     try {
-      const res = await recruiterAPI.export();
+      const res = await recruiterAPI.export({ skipAuthRedirect: true });
       const url = URL.createObjectURL(new Blob([res.data]));
       const a = document.createElement('a'); a.href = url; a.download = 'recruiters.xlsx'; a.click();
       URL.revokeObjectURL(url);
-    } catch { toast.error('Export failed'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Export failed');
+      }
+    }
   };
 
   return (

@@ -28,6 +28,7 @@ const recruiterSchema = new mongoose.Schema({
     lowercase: true
   },
   role:     { type: String, trim: true, default: '' },
+  jobDescription: { type: String, trim: true, default: '' },
   linkedin: { type: String, trim: true, default: '' },
   location: { type: String, trim: true, default: '' },
   notes:    { type: String, default: '' },

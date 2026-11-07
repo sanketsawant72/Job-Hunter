@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Send, Mail, FileText, Edit3, Check, RefreshCw, Paperclip } from 'lucide-react';
+import { ArrowLeft, Save, Send, Mail, FileText, Edit3, Check, Paperclip } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { draftAPI, gmailAPI, emailTemplateAPI, resumeAPI } from '../services/api';
+import { draftAPI, gmailAPI, resumeAPI } from '../services/api';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Badge from '../components/ui/Badge';
 
@@ -14,7 +14,6 @@ const EmailReview = () => {
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
   const [creatingDraft, setCreatingDraft] = useState(false);
-  const [regenerating, setRegenerating] = useState(false);
   const [editing, setEditing] = useState(false);
   const [resume, setResume] = useState(null);
   const [attachResume, setAttachResume] = useState(true);
@@ -27,8 +26,8 @@ const EmailReview = () => {
     const load = async () => {
       try {
         const [draftRes, resumeRes] = await Promise.all([
-          draftAPI.getOne(draftId),
-          resumeAPI.get()
+          draftAPI.getOne(draftId, { skipAuthRedirect: true }),
+          resumeAPI.get({ skipAuthRedirect: true })
         ]);
         const d = draftRes.data.data;
         setDraft(d);
@@ -37,22 +36,28 @@ const EmailReview = () => {
         setSignature(d.signature || '');
         setResume(resumeRes.data.data);
         setAttachResume(d.gmailDraftId ? !!d.resumeAttached : !!resumeRes.data.data);
-      } catch {
-        toast.error('Draft not found');
-        navigate('/bulk-send');
+      } catch (err) {
+        const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+        if (isAuthError) {
+          toast.error('Session expired. Please log in again.');
+          setTimeout(() => navigate('/login'), 1500);
+        } else {
+          toast.error('Draft not found');
+          navigate('/bulk-send');
+        }
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [draftId]);
+  }, [draftId, navigate]);
 
   // Auto-save every 30 seconds when editing
   useEffect(() => {
     if (!editing) return;
     autoSaveRef.current = setInterval(async () => {
       try {
-        await draftAPI.autoSave(draftId, { subject, body, signature });
+        await draftAPI.autoSave(draftId, { subject, body, signature }, { skipAuthRedirect: true });
         toast.info('Auto-saved', { autoClose: 1500 });
       } catch {}
     }, 30000);
@@ -62,11 +67,27 @@ const EmailReview = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await draftAPI.update(draftId, { subject, body, signature });
+      const res = await draftAPI.update(draftId, { subject, body, signature }, { skipAuthRedirect: true });
       setDraft(res.data.data);
       setEditing(false);
       toast.success('Draft saved');
-    } catch { toast.error('Save failed'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Save failed');
+      }
+    }
     finally { setSaving(false); }
   };
 
@@ -74,13 +95,25 @@ const EmailReview = () => {
     setCreatingDraft(true);
     try {
       // Save first
-      await draftAPI.update(draftId, { subject, body, signature });
-      const gmailDraftRes = await gmailAPI.createDraft({ draftId, attachResume: !!resume && attachResume });
+      await draftAPI.update(draftId, { subject, body, signature }, { skipAuthRedirect: true });
+      const gmailDraftRes = await gmailAPI.createDraft({ draftId, attachResume: !!resume && attachResume }, { skipAuthRedirect: true });
       toast.success('Gmail draft created! Check your Gmail Drafts folder.');
       setDraft(prev => ({ ...prev, status: 'approved', gmailDraftId: gmailDraftRes.data.data.gmailDraftId, resumeAttached: !!resume && attachResume }));
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to create Gmail draft';
-      if (msg.includes('Gmail not connected') || msg.includes('connect Gmail')) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else if (msg.includes('Gmail not connected') || msg.includes('connect Gmail')) {
         toast.error('Please connect Gmail first in the Gmail page');
         navigate('/gmail');
       } else {
@@ -96,14 +129,26 @@ const EmailReview = () => {
     setSending(true);
     try {
       await draftAPI.update(draftId, { subject, body, signature });
-      await gmailAPI.send({ draftId, attachResume: !!resume && attachResume });
+      await gmailAPI.send({ draftId, attachResume: !!resume && attachResume }, { skipAuthRedirect: true });
       toast.success(`Email sent to ${draft?.recruiter?.email}!`);
       navigate('/applications');
     } catch (err) {
       const code = err.response?.data?.code;
       const msg  = err.response?.data?.message || 'Send failed';
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
 
-      if (code === 'GMAIL_AUTH_EXPIRED' || code === 'GMAIL_INSUFFICIENT_PERMISSIONS') {
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else if (code === 'GMAIL_AUTH_EXPIRED' || code === 'GMAIL_INSUFFICIENT_PERMISSIONS') {
         toast.error(
           <div>
             <p className="font-semibold mb-1">Gmail needs reconnecting</p>
@@ -125,30 +170,6 @@ const EmailReview = () => {
       }
     } finally {
       setSending(false);
-    }
-  };
-
-  // Reload subject+body from the current master template
-  const handleRegenerate = async () => {
-    setRegenerating(true);
-    try {
-      const res = await emailTemplateAPI.get();
-      const tpl = res.data.data.template;
-      if (!tpl) {
-        toast.error('No master template found. Go to Email Template to generate one first.');
-        return;
-      }
-      // Update the draft in DB with the latest master template content
-      const updated = await draftAPI.update(draftId, { subject: tpl.subject, body: tpl.body });
-      const newDraft = updated.data.data;
-      setSubject(newDraft.subject);
-      setBody(newDraft.body);
-      setDraft(newDraft);
-      toast.success('Email reset to current master template.');
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Regeneration failed');
-    } finally {
-      setRegenerating(false);
     }
   };
 
@@ -299,11 +320,6 @@ const EmailReview = () => {
 
       {/* Action buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <button onClick={handleRegenerate} disabled={regenerating} className="btn-secondary flex-1 justify-center">
-          {regenerating ? <LoadingSpinner size="sm" /> : <RefreshCw className="w-4 h-4" />}
-          Regenerate
-        </button>
-
         {editing && (
           <button onClick={handleSave} disabled={saving} className="btn-secondary flex-1 justify-center">
             {saving ? <LoadingSpinner size="sm" /> : <Save className="w-4 h-4" />}

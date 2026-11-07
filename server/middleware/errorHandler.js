@@ -31,10 +31,18 @@ const errorHandler = (err, req, res, next) => {
 
   // JWT errors
   if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({ success: false, message: 'Invalid token' });
+    return res.status(401).json({
+      success: false,
+      code: 'AUTH_TOKEN_INVALID',
+      message: 'Invalid token'
+    });
   }
   if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({ success: false, message: 'Token expired' });
+    return res.status(401).json({
+      success: false,
+      code: 'AUTH_TOKEN_EXPIRED',
+      message: 'Token expired'
+    });
   }
 
   // Multer file size error
@@ -44,7 +52,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Google API errors
   if (err.code === 401 || err.message === 'invalid_grant') {
-    return res.status(401).json({
+    return res.status(403).json({
       success: false,
       message: 'Gmail session expired. Please disconnect and reconnect your Gmail account.',
       code: 'GMAIL_AUTH_EXPIRED'

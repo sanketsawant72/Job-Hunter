@@ -28,12 +28,20 @@ const Applications = () => {
       const params = { page, limit: 10 };
       if (search) params.search = search;
       if (status !== 'all') params.status = status;
-      const res = await applicationAPI.getAll(params);
+      const res = await applicationAPI.getAll(params, { skipAuthRedirect: true });
       setApps(res.data.data);
       setPagination(res.data.pagination);
-    } catch { toast.error('Failed to load applications'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error('Session expired. Please log in again.');
+        setTimeout(() => navigate('/login'), 1500);
+      } else {
+        toast.error('Failed to load applications');
+      }
+    }
     finally { setLoading(false); }
-  }, [page, search, status]);
+  }, [page, search, status, navigate]);
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { setPage(1); }, [search, status]);
@@ -45,13 +53,25 @@ const Applications = () => {
     }
     setRetrying(app.draft);
     try {
-      await gmailAPI.retry({ draftId: app.draft });
+      await gmailAPI.retry({ draftId: app.draft }, { skipAuthRedirect: true });
       toast.success(`Email resent to ${app.recruiterEmail}!`);
       load();
     } catch (err) {
       const code = err.response?.data?.code;
       const msg  = err.response?.data?.message || 'Retry failed';
-      if (code === 'GMAIL_AUTH_EXPIRED' || code === 'GMAIL_INSUFFICIENT_PERMISSIONS') {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else if (code === 'GMAIL_AUTH_EXPIRED' || code === 'GMAIL_INSUFFICIENT_PERMISSIONS') {
         toast.error('Gmail needs reconnecting — go to Gmail page and reconnect', { autoClose: 8000 });
         navigate('/gmail');
       } else {
@@ -64,7 +84,7 @@ const Applications = () => {
 
   const handleExport = async (fmt) => {
     try {
-      const res = await applicationAPI.export(fmt);
+      const res = await applicationAPI.export(fmt, { skipAuthRedirect: true });
       const url = URL.createObjectURL(new Blob([res.data]));
       const a = document.createElement('a');
       a.href = url;
@@ -72,7 +92,23 @@ const Applications = () => {
       a.click();
       URL.revokeObjectURL(url);
       toast.success('Export downloaded');
-    } catch { toast.error('Export failed'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Export failed');
+      }
+    }
   };
 
   return (

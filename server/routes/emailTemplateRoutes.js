@@ -18,7 +18,9 @@ router.get('/', getTemplate);
 // POST /api/email-template/generate → generate (or reuse) master email via AI
 router.post(
   '/generate',
-  [body('force').optional().isBoolean()],
+  [
+    body('force').optional().isBoolean(),
+  ],
   validate,
   generateTemplate
 );

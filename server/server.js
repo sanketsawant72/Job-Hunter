@@ -56,14 +56,21 @@ const authLimiter = rateLimit({
 });
 
 // CORS
-const clientOrigins = (process.env.CLIENT_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : ''))
+const clientOriginConfig = process.env.CLIENT_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : '');
+const clientOrigins = clientOriginConfig
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean)
-  .map((origin) => new URL(origin).origin);
+  .map((origin) => {
+    try {
+      return new URL(origin).origin;
+    } catch {
+      throw new Error(`Invalid CLIENT_URL origin: ${origin}`);
+    }
+  });
 
-if (process.env.NODE_ENV === 'production') {
-  clientOrigins.push('https://job-hunter-4ztdy48ov-sankets-projects-06f42331.vercel.app');
+if (process.env.NODE_ENV === 'production' && clientOrigins.length === 0) {
+  throw new Error('CLIENT_URL must contain the deployed frontend origin in production.');
 }
 
 app.use(cors({

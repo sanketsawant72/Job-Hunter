@@ -1,147 +1,97 @@
 /**
  * AI Email Generation Controller
  *
- * Generates role-specific emails based on the recruiter's job title.
- * No AI API calls — emails are built from templates matched to role category.
- * Categories: web | java | ai | python | general
+ * Generates a separate AI draft for each recruiter using the active resume,
+ * job description, recruiter context, and candidate profile links.
  */
 const Draft         = require('../models/Draft');
 const Recruiter     = require('../models/Recruiter');
-const EmailTemplate = require('../models/EmailTemplate');
+const Resume        = require('../models/Resume');
 const Settings      = require('../models/Settings');
+const EmailTemplate = require('../models/EmailTemplate');
 const logger        = require('../utils/logger');
+const { generatePerRecruiterEmail, resolveApiKey, extractResumeText } = require('./emailTemplateController');
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Role classification — mirrors your Google Apps Script logic
-// ─────────────────────────────────────────────────────────────────────────────
-function getRoleCategory(role) {
-  const r = (role || '').toLowerCase();
-  if (/\b(ai|artificial intelligence|machine learning|ml engineer|nlp|data science|generative ai|llm)\b/.test(r)) return 'ai';
-  if (/\b(python)\b/.test(r)) return 'python';
-  if (/\b(java|spring boot|backend|back.?end)\b/.test(r)) return 'java';
-  if (/\b(full.?stack|frontend|front.?end|web developer|react|next\.?js|mern|node\.?js)\b/.test(r)) return 'web';
-  return 'general';
+/**
+ * Fetch the latest active master template, including templates saved before
+ * role categories were removed.
+ */
+async function getMasterTemplate(userId) {
+  return EmailTemplate.findOne({
+    user: userId,
+    isActive: true
+  }).sort({ createdAt: -1 });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Build role-specific subject + body
-// ─────────────────────────────────────────────────────────────────────────────
-function buildRoleEmail(recruiter, settings) {
-  const hrName   = (recruiter.name  || '').trim();
-  const company  = (recruiter.company || '').trim();
-  const role     = (recruiter.role  || 'Software Developer').trim();
+/**
+ * Build the subject + body for one recruiter using the matched EmailTemplate & AI.
+ *
+ * Returns { subject, body, signature, usedAI: true }
+ */
+async function buildDraftForRecruiter(recruiter, settings, resumeContext) {
+  const baseTemplate = await getMasterTemplate(recruiter.user || settings.user);
 
-  const name      = settings.candidateName || 'Candidate';
-  const degree    = settings.degree        || '';
-  const college   = settings.college       || '';
-  const linkedin  = normalizeUrl(settings.linkedin  || '');
-  const github    = normalizeUrl(settings.github    || '');
-  const phone     = settings.phone         || '';
+  const generated = await generatePerRecruiterEmail(
+    resumeContext.apiKey,
+    resumeContext.provider,
+    resumeContext.text,
+    recruiter,
+    settings,
+    baseTemplate
+  );
 
+  const role = (recruiter.role || 'Software Developer').trim();
+  const company = (recruiter.company || '').trim();
+  const hrName = (recruiter.name || '').trim();
   const greeting = (!hrName || /not publicly found|hiring team|unknown|n\/a/i.test(hrName))
     ? 'Dear Hiring Team,'
     : `Dear ${hrName},`;
 
-  const category = getRoleCategory(role);
+  const subject = (generated.subject || `Application for ${role} at ${company}`)
+    .replace(/\{\{role\}\}/gi, role)
+    .replace(/\{\{company\}\}/gi, company);
 
-  let experience;
-  if (category === 'java') {
-    experience =
-      'Through my software development projects and technical ' +
-      'learning, I have developed a foundation in programming, ' +
-      'object-oriented concepts, databases, and REST API development. ' +
-      'I am strengthening my Java and Spring Boot skills and am ' +
-      'eager to apply them to real-world engineering challenges ' +
-      'while learning from an experienced team.';
-  } else if (category === 'web') {
-    experience =
-      'My hands-on project experience includes developing web ' +
-      'applications using JavaScript, React.js, Node.js, Express.js, ' +
-      'MongoDB, and related web technologies. My projects involved ' +
-      'authentication, CRUD functionality, and database integration. ' +
-      'These experiences have strengthened my understanding of ' +
-      'application development, debugging, and building user-focused solutions.';
-  } else if (category === 'ai') {
-    experience =
-      'My experience includes Python-based AI/ML projects, including ' +
-      'a Resume Screening System that uses natural language processing, ' +
-      'TF-IDF, and similarity scoring to analyze resumes and compare ' +
-      'candidate skills. My machine learning project work has helped me ' +
-      'build a foundation in data processing, model development, and ' +
-      'practical problem-solving.';
-  } else if (category === 'python') {
-    experience =
-      'My experience includes Python development, machine learning ' +
-      'project work, and AI-based projects. I have worked on a ' +
-      'Resume Screening System using NLP, TF-IDF, and similarity ' +
-      'scoring. I am eager to apply my programming and analytical ' +
-      'skills to practical development tasks and contribute to ' +
-      'meaningful projects.';
-  } else {
-    experience =
-      'My technical background includes software development, ' +
-      'web technologies, database integration, and Python-based ' +
-      'AI/ML projects. Through my academic work and practical projects, ' +
-      'I have developed programming, debugging, and problem-solving ' +
-      'skills. I am eager to contribute to your team and grow as a ' +
-      'software developer.';
+  const body = (generated.body || '')
+    .replace(/\{\{greeting\}\}/gi, greeting)
+    .replace(/\{\{role\}\}/gi, role)
+    .replace(/\{\{company\}\}/gi, company)
+    .replace(/\{\{signature\}\}/gi, generated.signature || '');
+
+  logger.info(`AI draft for ${recruiter.email} | role: "${role}" | masterTemplate: ${baseTemplate ? 'yes' : 'no'} | provider: ${resumeContext.provider}`);
+  return { subject, body, signature: generated.signature, usedAI: true };
+}
+
+/**
+ * Gather resume text + API key once, then reuse for all recruiters in a batch.
+ * Returns { text, apiKey, provider } — text is null if unavailable.
+ */
+async function loadResumeContext(userId, settings) {
+  const resume = await Resume.findOne({ user: userId, isActive: true });
+  if (!resume) {
+    const error = new Error('Upload an active resume before generating personalized emails.');
+    error.statusCode = 400;
+    throw error;
   }
 
-  const subject = `Application for ${role} – ${name}`;
+  const { text, warning } = await extractResumeText(resume.path, resume.mimetype);
+  if (!text) {
+    const error = new Error(warning || 'Could not extract text from your resume. Upload a text-based PDF or DOCX.');
+    error.statusCode = 400;
+    throw error;
+  }
 
-  const signatureLines = [`Best regards,\n${name}`];
-  if (degree && college) signatureLines.push(`${degree} | ${college}`);
-  if (linkedin) signatureLines.push(`LinkedIn: ${linkedin}`);
-  if (github)   signatureLines.push(`GitHub: ${github}`);
-  if (phone)    signatureLines.push(`Phone: ${phone}`);
-  const signature = signatureLines.join('\n');
+  const { apiKey, provider } = resolveApiKey(settings);
+  if (!apiKey) {
+    const providerKey = { gemini: 'GEMINI_API_KEY', groq: 'GROQ_API_KEY' }[provider] || 'OPENAI_API_KEY or the AI key in Settings';
+    const error = new Error(`AI provider key is not configured. Set ${providerKey} before generating emails.`);
+    error.statusCode = 400;
+    throw error;
+  }
 
-  const body =
-    `${greeting}\n\n` +
-    `I hope you are doing well.\n\n` +
-    `I am writing to express my interest in the ${role} opportunity at ${company}. ` +
-    (degree && college
-      ? `I am currently pursuing ${degree} at ${college} and am seeking an opportunity to apply my technical skills in a professional environment.\n\n`
-      : `I am a software developer seeking an opportunity to apply my technical skills in a professional environment.\n\n`) +
-    `${experience}\n\n` +
-    `I am a motivated learner who values clean code, collaboration, continuous improvement, and solving real-world problems. ` +
-    `I would welcome the opportunity to contribute to ${company} while further developing my technical and professional skills.\n\n` +
-    `Please find my resume attached for your consideration. ` +
-    `I would appreciate the opportunity to discuss my suitability for this position and am available for an interview at your convenience.\n\n` +
-    `Thank you for your time and consideration. I look forward to hearing from you.\n\n` +
-    `${signature}`;
-
-  return { subject, body, signature };
+  return { text, apiKey, provider };
 }
 
-function normalizeUrl(url) {
-  if (!url) return '';
-  return url.replace(/^(https?:)(https?:\/\/)/i, '$2').trim();
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Fallback: build signature only (used when falling back to master template)
-// ─────────────────────────────────────────────────────────────────────────────
-function buildSignature(settings) {
-  const name      = settings.candidateName || '';
-  const linkedin  = normalizeUrl(settings.linkedin  || '');
-  const github    = normalizeUrl(settings.github    || '');
-  const portfolio = normalizeUrl(settings.portfolio || '');
-  const phone     = settings.phone || '';
-
-  const lines = [`Best regards,\n${name}`];
-  if (phone)     lines.push(phone);
-  if (linkedin)  lines.push(linkedin);
-  if (github)    lines.push(github);
-  if (portfolio) lines.push(portfolio);
-  return lines.join('\n');
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Single email
-// ─────────────────────────────────────────────────────────────────────────────
-
-// @desc   Create a draft for one recruiter (role-specific email)
+// @desc   Create a draft for one recruiter (role-specific, AI-powered)
 // @route  POST /api/ai/generate
 exports.generateEmail = async (req, res, next) => {
   try {
@@ -159,7 +109,8 @@ exports.generateEmail = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Recruiter not found' });
     }
 
-    const { subject, body, signature } = buildRoleEmail(recruiter, settings);
+    const resumeContext = await loadResumeContext(req.user.id, settings);
+    const { subject, body, signature, usedAI } = await buildDraftForRecruiter(recruiter, settings, resumeContext);
 
     const draft = await Draft.create({
       user      : req.user.id,
@@ -172,12 +123,11 @@ exports.generateEmail = async (req, res, next) => {
 
     await Recruiter.findByIdAndUpdate(recruiter._id, { status: 'drafted' });
 
-    const category = getRoleCategory(recruiter.role);
-    logger.info(`Draft created for ${recruiter.name} @ ${recruiter.company} | role: "${recruiter.role}" | category: ${category}`);
+    logger.info(`Draft created for ${recruiter.name} @ ${recruiter.company} | role: "${recruiter.role}" | AI: ${usedAI}`);
 
     res.json({
       success: true,
-      message: `Email draft created (${category} template)`,
+      message: `AI email draft generated for the ${recruiter.role || 'job'} role`,
       data: { draft, generated: { subject, body } },
     });
   } catch (error) {
@@ -208,12 +158,15 @@ exports.generateForNew = async (req, res, next) => {
       });
     }
 
-    let created = 0;
-    const errors = [];
+    // Load resume context once for the whole batch (single AI key + resume read)
+    const resumeContext = await loadResumeContext(req.user.id, settings);
 
+    let created  = 0;
+    let aiCount  = 0;
+    const errors = [];
     for (const recruiter of newRecruiters) {
       try {
-        const { subject, body, signature } = buildRoleEmail(recruiter, settings);
+        const { subject, body, signature, usedAI } = await buildDraftForRecruiter(recruiter, settings, resumeContext);
         await Draft.create({
           user      : req.user.id,
           recruiter : recruiter._id,
@@ -224,19 +177,20 @@ exports.generateForNew = async (req, res, next) => {
         });
         await Recruiter.findByIdAndUpdate(recruiter._id, { status: 'drafted' });
         created++;
-        logger.info(`generateForNew: draft for ${recruiter.email} | category: ${getRoleCategory(recruiter.role)}`);
+        if (usedAI) aiCount++;
+        logger.info(`generateForNew: draft for ${recruiter.email} | role: ${recruiter.role || 'unspecified'} | AI: ${usedAI}`);
       } catch (err) {
         logger.error(`generateForNew: failed for ${recruiter.email} — ${err.message}`);
         errors.push(recruiter.email);
       }
     }
 
-    logger.info(`generateForNew: ${created}/${newRecruiters.length} drafts created for user ${req.user.id}`);
+    logger.info(`generateForNew: ${created}/${newRecruiters.length} drafts created (${aiCount} AI-generated) for user ${req.user.id}`);
 
     res.json({
       success: true,
-      message: `${created} draft${created !== 1 ? 's' : ''} created with role-specific emails.`,
-      data: { created, total: newRecruiters.length, errors },
+      message: `${created} draft${created !== 1 ? 's' : ''} created${aiCount > 0 ? ` (${aiCount} AI-customized for their role)` : ' with role-specific emails'}.`,
+      data: { created, total: newRecruiters.length, aiCount, errors },
     });
   } catch (error) {
     next(error);
@@ -261,8 +215,10 @@ exports.generateBatch = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please complete your profile in Settings' });
     }
 
-    const results = [];
+    // Load resume context once for the whole batch
+    const resumeContext = await loadResumeContext(req.user.id, settings);
 
+    const results = [];
     for (let i = 0; i < recruiterIds.length; i++) {
       const recruiterId = recruiterIds[i];
       try {
@@ -272,7 +228,7 @@ exports.generateBatch = async (req, res, next) => {
           continue;
         }
 
-        const { subject, body, signature } = buildRoleEmail(recruiter, settings);
+        const { subject, body, signature, usedAI } = await buildDraftForRecruiter(recruiter, settings, resumeContext);
         const draft = await Draft.create({
           user      : req.user.id,
           recruiter : recruiter._id,
@@ -283,19 +239,19 @@ exports.generateBatch = async (req, res, next) => {
         });
 
         await Recruiter.findByIdAndUpdate(recruiter._id, { status: 'drafted' });
-        results.push({ recruiterId, success: true, draftId: draft._id });
+        results.push({ recruiterId, success: true, draftId: draft._id, usedAI });
 
-        const category = getRoleCategory(recruiter.role);
-        logger.info(`Batch [${i + 1}/${recruiterIds.length}]: draft for ${recruiter.name} @ ${recruiter.company} | category: ${category}`);
+        logger.info(`Batch [${i + 1}/${recruiterIds.length}]: draft for ${recruiter.name} @ ${recruiter.company} | role: ${recruiter.role || 'unspecified'} | AI: ${usedAI}`);
       } catch (err) {
         logger.error(`Batch [${i + 1}/${recruiterIds.length}]: failed for ${recruiterId} — ${err.message}`);
         results.push({ recruiterId, success: false, reason: err.message });
       }
     }
 
-    const sent   = results.filter(r => r.success).length;
-    const failed = results.filter(r => !r.success).length;
-    logger.info(`Batch complete: ${sent} drafts created, ${failed} failed`);
+    const sent    = results.filter(r => r.success).length;
+    const failed  = results.filter(r => !r.success).length;
+    const aiCount = results.filter(r => r.usedAI).length;
+    logger.info(`Batch complete: ${sent} drafts created (${aiCount} AI-generated), ${failed} failed`);
 
     res.json({ success: true, data: results });
   } catch (error) {

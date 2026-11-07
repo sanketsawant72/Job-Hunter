@@ -1,6 +1,6 @@
 # AI Job Application Manager
 
-A full-stack MERN app that automates job application emails without sacrificing control. Upload your resume once, generate a master email with a single AI call, and send it to hundreds of recruiters through Gmail — all from one dashboard.
+A full-stack MERN app that automates job application emails without sacrificing control. Generate role- and technology-specific email bodies for recruiters, review them, and send through Gmail — all from one dashboard.
 
 ---
 
@@ -25,8 +25,8 @@ A full-stack MERN app that automates job application emails without sacrificing 
 
 ## Features
 
-- **Master Email Template** — one AI call generates one reusable email from your resume; the same email is sent to every recruiter with zero extra API calls
-- **Smart Resume Hashing** — SHA-256 detects when you replace your resume and prompts regeneration; unchanged resume = no API call ever
+- **Per-Application AI Emails** — a separate AI call tailors every draft to the recruiter's role, job description, and requirements using evidence from your resume
+- **Smart Resume Hashing** — SHA-256 detects when you replace your resume and prompts regeneration of your master template
 - **Recruiter Import** — bulk upload from CSV or Excel
 - **Email Verification** — filters undeliverable addresses before sending
 - **Gmail Integration** — send via Google OAuth2, no password stored
@@ -61,26 +61,21 @@ A full-stack MERN app that automates job application emails without sacrificing 
 ## How the Email System Works
 
 ```
-Upload Resume
+Read recruiter job description and requirements
       │
       ▼
-Hash resume file (SHA-256)
+Read the candidate's active resume
       │
-      ├── Hash matches stored template ──► Reuse saved email  (no API call)
-      │
-      └── Hash differs or no template  ──► Call AI once
-                                                │
-                                                ▼
-                                        Save master EmailTemplate
-                                                │
-                                                ▼
-                               Clone into drafts for every recruiter
-                               Zero additional API calls
+Generate a unique AI email for this recruiter
+              │
+              ▼
+Add social links from Settings and the resume to the signature
+              │
+              ▼
+Review draft and attach the active resume through Gmail
 ```
 
-**1 resume → 1 AI call → unlimited applications.**
-
-The email is intentionally generic — no company name, no recruiter name — so it works for any IT/software employer. Edit it freely at any time; manual edits never trigger another API call.
+Each recruiter gets an independent AI generation. The model is instructed to match resume-backed qualifications to the specific job description and not invent experience. Upload a readable PDF/DOCX resume and configure an AI provider key before generating. The single saved master template provides guidance while each draft is customized for its recruiter's role.
 
 ---
 
@@ -169,10 +164,10 @@ All variables go in `server/.env`. Start from `server/.env.example`.
 | `MONGODB_URI` | Yes | MongoDB connection string |
 | `JWT_SECRET` | Yes | Long random string for signing tokens |
 | `JWT_EXPIRE` | No | Token lifetime — default `7d` |
-| `OPENAI_API_KEY` | Yes* | OpenAI secret key (`sk-...`) |
-| `AI_PROVIDER` | No | `openai` (default), `groq`, or `gemini` |
+| `OPENAI_API_KEY` | Only for OpenAI | OpenAI secret key (`sk-...`) |
+| `AI_PROVIDER` | No | `openai` (code default), `groq`, or `gemini`; the Render blueprint selects `groq` |
 | `OPENAI_MODEL` | No | Model override — default `gpt-4o-mini` |
-| `GROQ_API_KEY` | No | Required when `AI_PROVIDER=groq` |
+| `GROQ_API_KEY` | No | Required when `AI_PROVIDER=groq` (default in `.env.example` and Render) |
 | `GEMINI_API_KEY` | No | Required when `AI_PROVIDER=gemini` |
 | `GOOGLE_CLIENT_ID` | Yes | Google OAuth client ID |
 | `GOOGLE_CLIENT_SECRET` | Yes | Google OAuth client secret |
@@ -218,7 +213,7 @@ Deploy the backend and frontend as separate services. The root `render.yaml` con
 2. Set the Blueprint's secret environment variables:
    - `MONGODB_URI`: a MongoDB Atlas connection string. Allow Render's outbound IPs or enable Atlas network access as appropriate.
    - `JWT_SECRET`: a unique, long random secret.
-   - `CLIENT_URL`: optional additional exact frontend origins, such as a custom domain. Separate multiple origins with commas. Trailing slashes and paths are normalized. The current Vercel frontend origin is allowed by default.
+   - `CLIENT_URL`: the exact deployed frontend origin, such as `https://your-site.netlify.app` or `https://your-project.vercel.app`. This is required in production. Separate additional allowed origins with commas; trailing slashes and paths are normalized.
    - `GROQ_API_KEY`: required because the blueprint selects `AI_PROVIDER=groq`. To use another provider, change `AI_PROVIDER` and set its corresponding API key.
    - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI` if Gmail integration is needed. The redirect URI must be `https://<your-render-service>.onrender.com/api/gmail/callback` and must also be added to the Google OAuth client's authorized redirect URIs.
 3. Wait for the deploy to finish and verify `https://<your-render-service>.onrender.com/health` returns JSON with `"success": true`.
@@ -227,7 +222,7 @@ Deploy the backend and frontend as separate services. The root `render.yaml` con
 
 1. Import the same GitHub repository into Netlify or deploy `client/` through Vercel. Netlify uses the root `netlify.toml`; Vercel uses the existing `client/vercel.json`.
 2. Set the frontend build variable `VITE_API_URL=https://<your-render-service>.onrender.com/api` in the hosting provider's site settings. Set it for every deploy context you use; it is read at build time. The client also adds `/api` if only the Render host is configured.
-3. Set the Render service's `CLIENT_URL` to the exact production frontend origin (without a trailing slash) and redeploy/restart the API so its CORS setting takes effect.
+3. Set the Render service's `CLIENT_URL` to the exact production frontend origin (without a trailing slash). Add any additional frontend origins as a comma-separated list, then redeploy/restart the API so its CORS setting takes effect.
 4. If using Gmail, confirm the Google OAuth redirect URI matches the deployed Render API URL exactly.
 
 The backend currently writes resumes and profile images to local disk. Render's default filesystem is ephemeral, so these files can be lost when the service restarts or redeploys. Use a paid Render persistent disk mounted at `server/uploads` or migrate uploads to object storage before relying on persistent user files.
@@ -240,19 +235,21 @@ Follow these steps in order the first time.
 
 **1. Register** at `http://localhost:5173/register`
 
-**2. Complete Settings** — add your name, phone, LinkedIn, GitHub, skills, and experience. Add your OpenAI API key here if you didn't put it in `.env`.
+**2. Complete Settings** — add your name, phone, LinkedIn, GitHub, portfolio, and any other social links, plus your skills and experience. For the default Groq provider, add `GROQ_API_KEY` to the backend host's environment; the OpenAI key field is only used when `AI_PROVIDER=openai`.
 
 **3. Upload Resume** — go to **Resume**, upload a PDF or DOCX (max 5 MB).
 
-**4. Generate your master email** — go to **Email Template**, click **Generate Master Email**. The AI reads your resume and writes one professional, generic application email. This is the only OpenAI call ever made. You can edit the subject and body freely — manual edits never trigger another API call.
+**4. (Optional) Manage the master template** — the Email Template page can generate or save one adaptable template that guides recruiter-specific drafts.
 
 **5. Connect Gmail** — go to **Gmail**, click **Connect Gmail**, authorise via Google.
 
 **6. Import recruiters** — go to **Upload Recruiters**, upload your CSV or Excel file. Email addresses are verified automatically.
 
-**7. Create drafts** — the master template is cloned into individual drafts for each recruiter. Go to **Bulk Send** to see them all.
+**7. Add job details** — provide a role and paste its job description/requirements in the recruiter form, or include a `Job Description` column in the CSV import.
 
-**8. Review and send** — open any draft to read it, edit if needed, then **Send** or **Save to Gmail Drafts**. Use **Bulk Send** to dispatch everything at once.
+**8. Create drafts** — each selected recruiter receives a separate AI-generated email based on the job details and your resume. Go to **Bulk Send** or open the individual review page to read and edit drafts.
+
+**9. Review and send** — the active resume is selected for attachment by default. Verify each message and attachment, then **Send** or **Save to Gmail Drafts**. Use **Bulk Send** to dispatch reviewed drafts.
 
 ---
 
@@ -264,12 +261,12 @@ ai-job-manager/
 │   ├── config/
 │   │   └── database.js
 │   ├── controllers/
-│   │   ├── aiController.js              # Clones template into per-recruiter drafts
+│   │   ├── aiController.js              # Generates role- and technology-specific draft bodies
 │   │   ├── applicationController.js
 │   │   ├── authController.js
 │   │   ├── dashboardController.js
 │   │   ├── draftController.js
-│   │   ├── emailTemplateController.js   # Master email: generate + edit
+│   │   ├── emailTemplateController.js   # Master template and recruiter-specific generation
 │   │   ├── failedEmailController.js
 │   │   ├── gmailController.js
 │   │   ├── recruiterController.js
@@ -283,7 +280,7 @@ ai-job-manager/
 │   ├── models/
 │   │   ├── Application.js
 │   │   ├── Draft.js
-│   │   ├── EmailTemplate.js             # One master email per user
+│   │   ├── EmailTemplate.js             # One reusable master template per user
 │   │   ├── FailedEmail.js
 │   │   ├── GmailLog.js
 │   │   ├── Recruiter.js
@@ -328,7 +325,7 @@ ai-job-manager/
     │   │   ├── BulkSend.jsx
     │   │   ├── Dashboard.jsx
     │   │   ├── EmailReview.jsx
-    │   │   ├── EmailTemplate.jsx        # Master email editor (generate + edit)
+    │   │   ├── EmailTemplate.jsx        # Saved reference templates (generate + edit)
     │   │   ├── FailedEmails.jsx
     │   │   ├── GmailPage.jsx
     │   │   ├── Profile.jsx
@@ -359,7 +356,7 @@ John Doe,Meta,john@meta.com,Frontend Developer,,New York NY,
 ```
 
 **Required:** `Company`, `Email`
-**Optional:** `Recruiter Name`, `Role`, `LinkedIn`, `Location`, `Notes`
+**Optional:** `Recruiter Name`, `Role`, `Job Description`, `LinkedIn`, `Location`, `Notes`
 
 Column names are matched case-insensitively. Duplicate emails per user are skipped automatically.
 
@@ -367,15 +364,15 @@ Column names are matched case-insensitively. Duplicate emails per user are skipp
 
 ## AI Provider Options
 
-Set `AI_PROVIDER` in `server/.env`:
+Set `AI_PROVIDER` in `server/.env` or the backend deployment environment. The Render blueprint and `.env.example` use Groq by default:
 
 | Provider | `.env` value | Free tier | Key |
 |---|---|---|---|
-| OpenAI (default) | `openai` | Pay per token | `OPENAI_API_KEY` |
+| OpenAI | `openai` | Pay per token | `OPENAI_API_KEY` |
 | Groq | `groq` | 30 RPM free | `GROQ_API_KEY` — [console.groq.com](https://console.groq.com) |
 | Google Gemini | `gemini` | 1 500 req/day free | `GEMINI_API_KEY` — [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
 
-Because the system makes only **one AI call per resume**, free-tier limits are rarely a concern.
+Per-application email generation makes a separate AI call for every recruiter. Add the configured provider key to the backend deployment environment; the API does not silently substitute a generic email when AI generation fails.
 
 ---
 
@@ -392,13 +389,13 @@ Because the system makes only **one AI call per resume**, free-tier limits are r
 | Symptom | Fix |
 |---|---|
 | `ECONNREFUSED` on MongoDB | Start MongoDB — `net start MongoDB` (Windows) or `brew services start mongodb-community` (Mac) |
-| `AI API key not configured` | Add `OPENAI_API_KEY` to `server/.env` or Settings |
-| `Invalid OpenAI API key` | Verify the key hasn't been rotated or deleted |
+| `AI API key not configured` | Add the key matching `AI_PROVIDER` to the backend environment (`GROQ_API_KEY`, `GEMINI_API_KEY`, or `OPENAI_API_KEY`) |
+| AI provider rejects its key | Verify the configured provider key hasn't been rotated or deleted |
 | Gmail won't connect | Check Client ID, Client Secret, and redirect URI match exactly |
 | `invalid_grant` on send | Token expired — disconnect and reconnect Gmail |
 | Resume upload 400 error | File must be `.pdf`, `.docx`, or `.doc`, max 5 MB |
-| "Resume has changed" warning | New resume uploaded — click **Regenerate Email** on the Email Template page |
-| No drafts in Bulk Send | Go to Email Template, generate a master email, then create drafts from the recruiter list |
+| "Resume has changed" warning | A new resume was uploaded — regenerate the master template |
+| No drafts in Bulk Send | Import recruiters, then create drafts from the recruiter list |
 | Port 5000 in use | Change `PORT` in `.env` and update the proxy target in `vite.config.js` |
 | Build fails | Delete `node_modules` + `package-lock.json`, re-run `npm install` |
 

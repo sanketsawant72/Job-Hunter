@@ -17,9 +17,17 @@ const ResumePage = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await resumeAPI.get();
+        const res = await resumeAPI.get({ skipAuthRedirect: true });
         setResume(res.data.data);
-      } catch { toast.error('Failed to load resume'); }
+      } catch (err) {
+        const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+        if (isAuthError) {
+          toast.error('Session expired. Please log in again.');
+          setTimeout(() => window.location.href = '/login', 1500);
+        } else {
+          toast.error('Failed to load resume');
+        }
+      }
       finally { setLoading(false); }
     };
     load();
@@ -41,11 +49,25 @@ const ResumePage = () => {
     try {
       const formData = new FormData();
       formData.append('resume', file);
-      const res = await resumeAPI.upload(formData);
+      const res = await resumeAPI.upload(formData, { skipAuthRedirect: true });
       setResume(res.data.data);
       toast.success('Resume uploaded successfully!');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Upload failed');
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => window.location.href = '/login'} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error(err.response?.data?.message || 'Upload failed');
+      }
     } finally {
       setUploading(false);
     }
@@ -54,11 +76,27 @@ const ResumePage = () => {
   const handleDelete = async () => {
     setDeleteLoading(true);
     try {
-      await resumeAPI.delete();
+      await resumeAPI.delete({ skipAuthRedirect: true });
       setResume(null);
       setShowDelete(false);
       toast.success('Resume deleted');
-    } catch { toast.error('Delete failed'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => window.location.href = '/login'} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Delete failed');
+      }
+    }
     finally { setDeleteLoading(false); }
   };
 

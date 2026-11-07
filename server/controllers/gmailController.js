@@ -48,6 +48,13 @@ async function getAuthClient(settings, userId) {
 async function sendWithRetry({ authClient, draft, resume, includeResume = true, maxRetries = 3 }) {
   const NON_RETRYABLE = ['invalid_grant', 'insufficientPermissions', 'Insufficient Permission'];
 
+  if (includeResume && draft.gmailDraftId && !draft.resumeAttached) {
+    throw new Error('This saved Gmail draft has no resume attachment. Create a new Gmail draft with the resume attached.');
+  }
+  if (includeResume && !draft.gmailDraftId && !resume) {
+    throw new Error('No active resume is available to attach. Upload your resume before sending.');
+  }
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       let result;

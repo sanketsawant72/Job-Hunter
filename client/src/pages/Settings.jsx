@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { User, Code, Mail, Cpu, Save, Eye, EyeOff, RefreshCw, Wand2 } from 'lucide-react';
+import { User, Code, Mail, Cpu, Save, Eye, EyeOff, RefreshCw, Wand2, Plus, Trash2 } from 'lucide-react';
 import { settingsAPI } from '../services/api';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
@@ -20,19 +20,32 @@ const Settings = () => {
   const [fixingSignature, setFixingSignature] = useState(false);
   const [settings, setSettings] = useState(null);
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, watch, control, formState: { errors } } = useForm();
+  const { fields: socialLinkFields, append: appendSocialLink, remove: removeSocialLink } = useFieldArray({
+    control,
+    name: 'socialLinks',
+  });
 
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await settingsAPI.get();
+        const res = await settingsAPI.get({ skipAuthRedirect: true });
         setSettings(res.data.data);
         reset({
           ...res.data.data,
+          socialLinks: res.data.data.socialLinks || [],
           skills: Array.isArray(res.data.data.skills) ? res.data.data.skills.join(', ') : res.data.data.skills || '',
           openaiApiKey: '' // Don't prefill masked key
         });
-      } catch { toast.error('Failed to load settings'); }
+      } catch (err) {
+        const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+        if (isAuthError) {
+          toast.error('Session expired. Please log in again.');
+          setTimeout(() => window.location.href = '/login', 1500);
+        } else {
+          toast.error('Failed to load settings');
+        }
+      }
       finally { setLoading(false); }
     };
     load();
@@ -41,12 +54,26 @@ const Settings = () => {
   const handleFixSignature = async () => {
     setFixingSignature(true);
     try {
-      const res = await settingsAPI.fixSignature();
+      const res = await settingsAPI.fixSignature({ skipAuthRedirect: true });
       const newSig = res.data.data.emailSignature;
       reset({ ...watch(), emailSignature: newSig });
       toast.success('Signature rebuilt from your profile');
-    } catch {
-      toast.error('Failed to rebuild signature');
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => window.location.href = '/login'} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Failed to rebuild signature');
+      }
     } finally {
       setFixingSignature(false);
     }
@@ -62,10 +89,24 @@ const Settings = () => {
       if (!data.openaiApiKey || data.openaiApiKey.startsWith('••')) {
         delete data.openaiApiKey;
       }
-      await settingsAPI.update(data);
+      await settingsAPI.update(data, { skipAuthRedirect: true });
       toast.success('Settings saved!');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Save failed');
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => window.location.href = '/login'} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error(err.response?.data?.message || 'Save failed');
+      }
     } finally {
       setSaving(false);
     }
@@ -162,6 +203,47 @@ const Settings = () => {
               </div>
             </div>
 
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <label className="label">Other social links</label>
+                  <p className="text-xs text-gray-400">These are added to your email signature. Add any public profile link.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => appendSocialLink({ label: '', url: '' })}
+                  className="btn-secondary text-sm"
+                >
+                  <Plus className="w-4 h-4" /> Add link
+                </button>
+              </div>
+              {socialLinkFields.map((field, index) => (
+                <div key={field.id} className="grid grid-cols-1 sm:grid-cols-[1fr_2fr_auto] gap-3 items-center">
+                  <input
+                    className="input"
+                    placeholder="Label (e.g. X, Kaggle)"
+                    aria-label={`Social link ${index + 1} label`}
+                    {...register(`socialLinks.${index}.label`)}
+                  />
+                  <input
+                    className="input"
+                    type="url"
+                    placeholder="https://..."
+                    aria-label={`Social link ${index + 1} URL`}
+                    {...register(`socialLinks.${index}.url`)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeSocialLink(index)}
+                    className="btn-secondary text-sm text-red-600"
+                    aria-label={`Remove social link ${index + 1}`}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
             <div>
               <label className="label">Resume Summary</label>
               <textarea className="input resize-none" rows={3}
@@ -174,21 +256,20 @@ const Settings = () => {
         {/* AI Tab */}
         {activeTab === 'ai' && (
           <div className="card p-6 space-y-5">
-            <h3 className="font-semibold text-gray-900 dark:text-white">OpenAI Configuration</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white">AI Provider Configuration</h3>
 
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-sm text-blue-700 dark:text-blue-300">
-              Your OpenAI API key is used to generate personalized job application emails.
-              Get one at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline font-medium">platform.openai.com</a>.
-              {settings?.openaiApiKeySet && <span className="ml-2 font-medium text-green-600 dark:text-green-400">✓ Key is set</span>}
+              The deployed project is configured for Groq. Add a Groq API key to the backend host's <code>GROQ_API_KEY</code> environment variable for free-tier AI access. Get a key at{' '}
+              <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" className="underline font-medium">console.groq.com</a>.
             </div>
 
             <div>
-              <label className="label">OpenAI API Key</label>
+              <label className="label">OpenAI API Key (optional)</label>
               <div className="relative">
                 <input
                   type={showApiKey ? 'text' : 'password'}
                   className="input pr-10"
-                  placeholder={settings?.openaiApiKeySet ? 'Leave empty to keep current key' : 'sk-...'}
+                  placeholder={settings?.openaiApiKeySet ? 'Leave empty to keep current key' : 'Only used when AI_PROVIDER=openai'}
                   {...register('openaiApiKey')}
                 />
                 <button type="button" onClick={() => setShowApiKey(!showApiKey)}
@@ -196,7 +277,10 @@ const Settings = () => {
                   {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-xs text-gray-400 mt-1">Leave blank to use the system key (if available). Your key takes priority.</p>
+              <p className="text-xs text-gray-400 mt-1">
+                This key is only used when the backend is configured with <code>AI_PROVIDER=openai</code>. Never put AI provider keys in frontend environment variables.
+                {settings?.openaiApiKeySet && <span className="ml-2 font-medium text-green-600 dark:text-green-400">✓ OpenAI key is set</span>}
+              </p>
             </div>
           </div>
         )}

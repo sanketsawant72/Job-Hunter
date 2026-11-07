@@ -20,35 +20,73 @@ const ApplicationDetail = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await applicationAPI.getOne(id);
+        const res = await applicationAPI.getOne(id, { skipAuthRedirect: true });
         setApp(res.data.data);
         setNotes(res.data.data.notes || '');
-      } catch {
-        toast.error('Application not found');
-        navigate('/applications');
+      } catch (err) {
+        const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+        if (isAuthError) {
+          toast.error('Session expired. Please log in again.');
+          setTimeout(() => navigate('/login'), 1500);
+        } else {
+          toast.error('Application not found');
+          navigate('/applications');
+        }
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [id]);
+  }, [id, navigate]);
 
   const handleStatusUpdate = async (status) => {
     setUpdating(true);
     try {
-      const res = await applicationAPI.update(id, { status, notes });
+      const res = await applicationAPI.update(id, { status, notes }, { skipAuthRedirect: true });
       setApp(res.data.data);
       toast.success(`Status updated to ${status}`);
-    } catch { toast.error('Update failed'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Update failed');
+      }
+    }
     finally { setUpdating(false); }
   };
 
   const handleSaveNotes = async () => {
     setUpdating(true);
     try {
-      await applicationAPI.update(id, { notes });
+      await applicationAPI.update(id, { notes }, { skipAuthRedirect: true });
       toast.success('Notes saved');
-    } catch { toast.error('Save failed'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Save failed');
+      }
+    }
     finally { setUpdating(false); }
   };
 

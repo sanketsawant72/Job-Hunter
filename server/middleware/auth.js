@@ -18,7 +18,11 @@ const protect = async (req, res, next) => {
     }
 
     if (!token) {
-      return res.status(401).json({ success: false, message: 'Not authorized. No token provided.' });
+      return res.status(401).json({
+        success: false,
+        code: 'AUTH_REQUIRED',
+        message: 'Not authorized. No token provided.'
+      });
     }
 
     // Verify token
@@ -27,17 +31,29 @@ const protect = async (req, res, next) => {
     // Get user from DB
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {
-      return res.status(401).json({ success: false, message: 'User not found. Token invalid.' });
+      return res.status(401).json({
+        success: false,
+        code: 'AUTH_USER_NOT_FOUND',
+        message: 'User not found. Token invalid.'
+      });
     }
 
     req.user = user;
     next();
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ success: false, message: 'Invalid token.' });
+      return res.status(401).json({
+        success: false,
+        code: 'AUTH_TOKEN_INVALID',
+        message: 'Invalid token.'
+      });
     }
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ success: false, message: 'Token expired. Please login again.' });
+      return res.status(401).json({
+        success: false,
+        code: 'AUTH_TOKEN_EXPIRED',
+        message: 'Token expired. Please login again.'
+      });
     }
     return res.status(500).json({ success: false, message: 'Auth middleware error.' });
   }

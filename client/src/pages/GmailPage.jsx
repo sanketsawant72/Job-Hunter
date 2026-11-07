@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Mail, CheckCircle, AlertCircle, Link, Unlink, ExternalLink, Shield, RefreshCw } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { gmailAPI } from '../services/api';
+import { getGmailCallbackUrl, gmailAPI } from '../services/api';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const GmailPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
@@ -14,9 +15,17 @@ const GmailPage = () => {
 
   const loadStatus = async () => {
     try {
-      const res = await gmailAPI.getStatus();
+      const res = await gmailAPI.getStatus({ skipAuthRedirect: true });
       setStatus(res.data.data);
-    } catch { toast.error('Failed to load Gmail status'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error('Session expired. Please log in again.');
+        setTimeout(() => navigate('/login'), 1500);
+      } else {
+        toast.error('Failed to load Gmail status');
+      }
+    }
     finally { setLoading(false); }
   };
 
@@ -36,10 +45,24 @@ const GmailPage = () => {
   const handleConnect = async () => {
     setConnecting(true);
     try {
-      const res = await gmailAPI.getAuthUrl();
+      const res = await gmailAPI.getAuthUrl({ skipAuthRedirect: true });
       window.location.href = res.data.url;
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to get auth URL. Check Google OAuth credentials in Settings.');
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to get auth URL. Check Google OAuth credentials in Settings.');
+      }
       setConnecting(false);
     }
   };
@@ -48,10 +71,26 @@ const GmailPage = () => {
     if (!window.confirm('Disconnect Gmail? You will need to reconnect to send emails.')) return;
     setDisconnecting(true);
     try {
-      await gmailAPI.disconnect();
+      await gmailAPI.disconnect({ skipAuthRedirect: true });
       setStatus({ connected: false, email: null });
       toast.success('Gmail disconnected');
-    } catch { toast.error('Disconnect failed'); }
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Disconnect failed');
+      }
+    }
     finally { setDisconnecting(false); }
   };
 
@@ -143,8 +182,9 @@ const GmailPage = () => {
             'Create a new project or select existing',
             'Enable Gmail API for your project',
             'Create OAuth 2.0 credentials (Web Application)',
-            'Add redirect URI: ' + (window.location.origin.includes('localhost') ? 'http://localhost:5000/api/gmail/callback' : 'your-backend-url/api/gmail/callback'),
-            'Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to server .env',
+            'In Google Cloud, add the exact callback URL below under Authorized redirect URIs',
+            'Set GOOGLE_REDIRECT_URI to the same URL in your backend environment',
+            'Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to the backend environment',
             'Come back and click Connect Gmail'
           ].map((step, i) => (
             <li key={i} className="flex items-start gap-2">
@@ -155,6 +195,10 @@ const GmailPage = () => {
             </li>
           ))}
         </ol>
+        <div className="mt-3 rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Authorized redirect URI</p>
+          <code className="text-xs break-all text-gray-800 dark:text-gray-200">{getGmailCallbackUrl()}</code>
+        </div>
         <a
           href="https://console.cloud.google.com"
           target="_blank"

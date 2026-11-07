@@ -9,6 +9,11 @@ const API_URL = /^https?:\/\//i.test(configuredApiUrl) && !configuredApiUrl.ends
   ? `${configuredApiUrl}/api`
   : configuredApiUrl;
 
+export const getGmailCallbackUrl = () => {
+  if (!/^https?:\/\//i.test(API_URL)) return 'http://localhost:5000/api/gmail/callback';
+  return `${new URL(API_URL).origin}/api/gmail/callback`;
+};
+
 export const getAssetUrl = (url) => {
   if (!url || /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(url)) return url;
   if (!/^https?:\/\//i.test(API_URL)) return url;
@@ -37,16 +42,24 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message = error.response?.data?.message || 'Something went wrong';
-    
-    if (error.response?.status === 401) {
+    const authErrorCodes = [
+      'AUTH_REQUIRED',
+      'AUTH_USER_NOT_FOUND',
+      'AUTH_TOKEN_INVALID',
+      'AUTH_TOKEN_EXPIRED',
+    ];
+    const isAppAuthError = authErrorCodes.includes(error.response?.data?.code);
+    // Allow requests to opt out of the hard redirect on auth errors
+    const skipAuthRedirect = error.config?.skipAuthRedirect === true;
+
+    if (error.response?.status === 401 && isAppAuthError && !skipAuthRedirect) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     } else if (error.response?.status === 429) {
       toast.error('Too many requests. Please slow down.');
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -55,105 +68,107 @@ api.interceptors.response.use(
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
-  logout: () => api.post('/auth/logout'),
-  getProfile: () => api.get('/auth/profile'),
-  updateProfile: (data) => api.put('/auth/profile', data),
-  changePassword: (data) => api.put('/auth/change-password', data),
+  logout: (options = {}) => api.post('/auth/logout', {}, options),
+  getProfile: (options = {}) => api.get('/auth/profile', options),
+  updateProfile: (data, options = {}) => api.put('/auth/profile', data, options),
+  changePassword: (data, options = {}) => api.put('/auth/change-password', data, options),
   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
   resetPassword: (token, password) => api.put(`/auth/reset-password/${token}`, { password })
 };
 
 // Recruiters
 export const recruiterAPI = {
-  getAll: (params) => api.get('/recruiters', { params }),
-  getOne: (id) => api.get(`/recruiters/${id}`),
-  create: (data) => api.post('/recruiters', data),
-  update: (id, data) => api.put(`/recruiters/${id}`, data),
-  delete: (id) => api.delete(`/recruiters/${id}`),
-  upload: (formData) => api.post('/recruiters/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+  getAll: (params, options = {}) => api.get('/recruiters', { params, ...options }),
+  getOne: (id, options = {}) => api.get(`/recruiters/${id}`, options),
+  create: (data, options = {}) => api.post('/recruiters', data, options),
+  update: (id, data, options = {}) => api.put(`/recruiters/${id}`, data, options),
+  delete: (id, options = {}) => api.delete(`/recruiters/${id}`, options),
+  upload: (formData, options = {}) => api.post('/recruiters/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    ...options
   }),
-  toggleFavorite: (id) => api.patch(`/recruiters/${id}/favorite`),
-  export: () => api.get('/recruiters/export', { responseType: 'blob' })
+  toggleFavorite: (id, options = {}) => api.patch(`/recruiters/${id}/favorite`, {}, options),
+  export: (options = {}) => api.get('/recruiters/export', { responseType: 'blob', ...options })
 };
 
 // Resume
 export const resumeAPI = {
-  upload: (formData) => api.post('/resume/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+  upload: (formData, options = {}) => api.post('/resume/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    ...options
   }),
-  get: () => api.get('/resume'),
-  delete: () => api.delete('/resume')
+  get: (options = {}) => api.get('/resume', options),
+  delete: (options = {}) => api.delete('/resume', options)
 };
 
 // AI
 export const aiAPI = {
-  generate: (data) => api.post('/ai/generate', data),
-  generateBatch: (data) => api.post('/ai/generate-batch', data),
-  generateForNew: () => api.post('/ai/generate-for-new'),
+  generate: (data, options = {}) => api.post('/ai/generate', data, options),
+  generateBatch: (data, options = {}) => api.post('/ai/generate-batch', data, options),
+  generateForNew: (options = {}) => api.post('/ai/generate-for-new', {}, options),
 };
 
-// Email Template (master email — generated once, reused for all companies)
+// One adaptable master template is used as guidance for recruiter-specific drafts.
 export const emailTemplateAPI = {
-  get:        ()           => api.get('/email-template'),
-  generate:   (force = false) => api.post('/email-template/generate', { force }),
-  saveManual: (data)       => api.post('/email-template/manual', data),
-  update:     (id, data)   => api.put(`/email-template/${id}`, data),
+  get:        (options = {})           => api.get('/email-template', options),
+  generate:   (force = false, options = {}) => api.post('/email-template/generate', { force }, options),
+  saveManual: (data, options = {})     => api.post('/email-template/manual', data, options),
+  update:     (id, data, options = {}) => api.put(`/email-template/${id}`, data, options),
 };
 
 // Gmail
 export const gmailAPI = {
-  getAuthUrl:    ()     => api.get('/gmail/auth-url'),
-  getStatus:     ()     => api.get('/gmail/status'),
-  disconnect:    ()     => api.post('/gmail/disconnect'),
-  createDraft:   (data) => api.post('/gmail/create-draft', data),
-  send:          (data) => api.post('/gmail/send', data),
-  sendBulk:      (draftIds) => api.post('/gmail/send-bulk', { draftIds }),
-  retry:         (data) => api.post('/gmail/retry', data),
-  resendFailed:  (failedEmailId) => api.post('/gmail/resend-failed', { failedEmailId }),
+  getAuthUrl:    (options = {}) => api.get('/gmail/auth-url', options),
+  getStatus:     (options = {}) => api.get('/gmail/status', options),
+  disconnect:    (options = {}) => api.post('/gmail/disconnect', {}, options),
+  createDraft:   (data, options = {}) => api.post('/gmail/create-draft', data, options),
+  send:          (data, options = {}) => api.post('/gmail/send', data, options),
+  sendBulk:      (draftIds, options = {}) => api.post('/gmail/send-bulk', { draftIds }, options),
+  retry:         (data, options = {}) => api.post('/gmail/retry', data, options),
+  resendFailed:  (failedEmailId, options = {}) => api.post('/gmail/resend-failed', { failedEmailId }, options),
 };
 
 // Applications
 export const applicationAPI = {
-  getAll: (params) => api.get('/applications', { params }),
-  getOne: (id) => api.get(`/applications/${id}`),
-  update: (id, data) => api.put(`/applications/${id}`, data),
-  export: (format) => api.get('/applications/export', { params: { format }, responseType: 'blob' })
+  getAll: (params, options = {}) => api.get('/applications', { params, ...options }),
+  getOne: (id, options = {}) => api.get(`/applications/${id}`, options),
+  update: (id, data, options = {}) => api.put(`/applications/${id}`, data, options),
+  export: (format, options = {}) => api.get('/applications/export', { params: { format }, responseType: 'blob', ...options })
 };
 
 // Drafts
 export const draftAPI = {
-  getAll:        (params) => api.get('/drafts', { params }),
-  getOne:        (id)     => api.get(`/drafts/${id}`),
-  update:        (id, data) => api.put(`/drafts/${id}`, data),
-  autoSave:      (id, data) => api.patch(`/drafts/${id}/autosave`, data),
-  delete:        (id)     => api.delete(`/drafts/${id}`),
-  getFailedCount: ()      => api.get('/drafts/failed-count'),
-  resetFailed:   ()       => api.post('/drafts/reset-failed'),
+  getAll:        (params, options = {}) => api.get('/drafts', { params, ...options }),
+  getOne:        (id, options = {})     => api.get(`/drafts/${id}`, options),
+  update:        (id, data, options = {}) => api.put(`/drafts/${id}`, data, options),
+  autoSave:      (id, data, options = {}) => api.patch(`/drafts/${id}/autosave`, data, options),
+  delete:        (id, options = {})     => api.delete(`/drafts/${id}`, options),
+  getFailedCount: (options = {})        => api.get('/drafts/failed-count', options),
+  resetFailed:   (options = {})         => api.post('/drafts/reset-failed', {}, options),
 };
 
 // Dashboard
 export const dashboardAPI = {
-  get: () => api.get('/dashboard')
+  get: (options = {}) => api.get('/dashboard', options)
 };
 
 // Settings
 export const settingsAPI = {
-  get: () => api.get('/settings'),
-  update: (data) => api.put('/settings', data),
-  updateApiKey: (key) => api.put('/settings/api-key', { openaiApiKey: key }),
-  fixSignature: () => api.post('/settings/fix-signature')
+  get: (options = {}) => api.get('/settings', options),
+  update: (data, options = {}) => api.put('/settings', data, options),
+  updateApiKey: (key, options = {}) => api.put('/settings/api-key', { openaiApiKey: key }, options),
+  fixSignature: (options = {}) => api.post('/settings/fix-signature', {}, options)
 };
 
 // Failed Emails
 export const failedEmailAPI = {
-  getAll:   (params) => api.get('/failed-emails', { params }),
-  getOne:   (id)     => api.get(`/failed-emails/${id}`),
-  update:   (id, data) => api.put(`/failed-emails/${id}`, data),
-  reverify: (id)     => api.post(`/failed-emails/${id}/reverify`),
-  resolve:  (id, note) => api.post(`/failed-emails/${id}/resolve`, { note }),
-  delete:   (id)     => api.delete(`/failed-emails/${id}`),
-  getStats: ()       => api.get('/failed-emails/stats')
+  getAll:   (params, options = {}) => api.get('/failed-emails', { params, ...options }),
+  getOne:   (id, options = {})     => api.get(`/failed-emails/${id}`, options),
+  update:   (id, data, options = {}) => api.put(`/failed-emails/${id}`, data, options),
+  reverify: (id, options = {})     => api.post(`/failed-emails/${id}/reverify`, {}, options),
+  resolve:  (id, note, options = {}) => api.post(`/failed-emails/${id}/resolve`, { note }, options),
+  delete:   (id, options = {})     => api.delete(`/failed-emails/${id}`, options),
+  getStats: (options = {})         => api.get('/failed-emails/stats', options)
 };
 
 export default api;

@@ -135,8 +135,8 @@ const BulkSend = () => {
       if (statusFilter !== 'all') params.status = statusFilter;
 
       const [draftsRes, failedRes] = await Promise.all([
-        draftAPI.getAll(params),
-        draftAPI.getFailedCount(),
+        draftAPI.getAll(params, { skipAuthRedirect: true }),
+        draftAPI.getFailedCount({ skipAuthRedirect: true }),
       ]);
 
       const list = draftsRes.data.data || [];
@@ -145,12 +145,19 @@ const BulkSend = () => {
 
       // Auto-select all non-sent drafts
       setSelected(new Set(list.filter(d => d.status !== 'sent').map(d => d._id)));
-    } catch {
-      toast.error('Failed to load drafts');
+    } catch (err) {
+      // If auth failed, let the user know and redirect to login
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error('Session expired. Please log in again.');
+        setTimeout(() => navigate('/login'), 1500);
+      } else {
+        toast.error('Failed to load drafts');
+      }
     } finally {
       setLoading(false);
     }
-  }, [statusFilter]);
+  }, [statusFilter, navigate]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -158,11 +165,25 @@ const BulkSend = () => {
   const handleResetFailed = async () => {
     setResetting(true);
     try {
-      const res = await draftAPI.resetFailed();
+      const res = await draftAPI.resetFailed({ skipAuthRedirect: true });
       toast.success(res.data.message);
       setStatusFilter('draft'); // will trigger reload via useEffect
-    } catch {
-      toast.error('Failed to reset drafts');
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Failed to reset drafts');
+      }
     } finally {
       setResetting(false);
     }
@@ -208,7 +229,7 @@ const BulkSend = () => {
         setSendProgress(Math.round(fakeProgress));
       }, 600);
 
-      const res = await gmailAPI.sendBulk(ids);
+      const res = await gmailAPI.sendBulk(ids, { skipAuthRedirect: true });
       clearInterval(tick);
       setSendProgress(100);
 
@@ -222,8 +243,20 @@ const BulkSend = () => {
     } catch (err) {
       const code = err.response?.data?.code;
       const msg  = err.response?.data?.message || 'Bulk send failed';
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
 
-      if (code === 'GMAIL_AUTH_EXPIRED' || code === 'GMAIL_INSUFFICIENT_PERMISSIONS' || msg.includes('not connected')) {
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else if (code === 'GMAIL_AUTH_EXPIRED' || code === 'GMAIL_INSUFFICIENT_PERMISSIONS' || msg.includes('not connected')) {
         toast.error(
           <div>
             <p className="font-semibold mb-1">Gmail not connected</p>

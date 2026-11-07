@@ -18,15 +18,29 @@ const RecruiterForm = ({ initial, onSuccess }) => {
         data.tags = data.tags.split(',').map(t => t.trim()).filter(Boolean);
       }
       if (initial) {
-        await recruiterAPI.update(initial._id, data);
+        await recruiterAPI.update(initial._id, data, { skipAuthRedirect: true });
         toast.success('Recruiter updated');
       } else {
-        await recruiterAPI.create(data);
+        await recruiterAPI.create(data, { skipAuthRedirect: true });
         toast.success('Recruiter added');
       }
       onSuccess();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to save');
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => window.location.href = '/login'} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to save');
+      }
     } finally {
       setLoading(false);
     }
@@ -68,6 +82,17 @@ const RecruiterForm = ({ initial, onSuccess }) => {
           <label className="label">Location</label>
           <input className="input" placeholder="New York, NY" {...register('location')} />
         </div>
+      </div>
+
+      <div>
+        <label className="label">Job Description / Requirements</label>
+        <textarea
+          className="input resize-y"
+          rows={4}
+          placeholder="Paste the role's key responsibilities and required skills..."
+          {...register('jobDescription')}
+        />
+        <p className="mt-1 text-xs text-gray-400">Used to tailor this recruiter's email to the specific opening.</p>
       </div>
 
       <div>

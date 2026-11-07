@@ -23,6 +23,10 @@ const settingsSchema = new mongoose.Schema({
   github: { type: String, default: '' },
   linkedin: { type: String, default: '' },
   portfolio: { type: String, default: '' },
+  socialLinks: [{
+    label: { type: String, trim: true, default: '' },
+    url: { type: String, trim: true, default: '' },
+  }],
   emailSignature: { type: String, default: '' },
   resumeSummary: { type: String, default: '' },
 

@@ -15,9 +15,9 @@ const TAB_AI     = 'ai';
 const TAB_MANUAL = 'manual';
 
 // ── starter template the user can fill in ────────────────────────────────
-const MANUAL_STARTER = `Dear Hiring Team,
+const MANUAL_STARTER = `{{greeting}}
 
-I am writing to express my interest in software development opportunities within your organisation.
+I am writing to express my interest in the {{role}} opportunity at {{company}}.
 
 [Write 2–3 sentences about your background, skills, and what you bring to the role.]
 
@@ -25,7 +25,9 @@ I am writing to express my interest in software development opportunities within
 
 I would welcome the opportunity to discuss how I can contribute to your team. Please find my resume attached for your consideration.
 
-Thank you for your time.`;
+Thank you for your time.
+
+{{signature}}`;
 
 const EmailTemplate = () => {
   const navigate = useNavigate();
@@ -33,6 +35,7 @@ const EmailTemplate = () => {
   // ── shared state ──────────────────────────────────────────────────────
   const [loading, setLoading]               = useState(true);
   const [template, setTemplate]             = useState(null);
+  const [templates, setTemplates]           = useState([]);
   const [resume, setResume]                 = useState(null);
   const [resumeChanged, setResumeChanged]   = useState(false);
   const [newCount, setNewCount]             = useState(0);
@@ -48,7 +51,7 @@ const EmailTemplate = () => {
   const [generating, setGenerating]         = useState(false);
 
   // ── manual tab state ──────────────────────────────────────────────────
-  const [manualSubject, setManualSubject]   = useState('Application for Software Development Opportunity');
+  const [manualSubject, setManualSubject]   = useState('Application for {{role}}');
   const [manualBody, setManualBody]         = useState(MANUAL_STARTER);
   const [savingManual, setSavingManual]     = useState(false);
 
@@ -60,23 +63,34 @@ const EmailTemplate = () => {
     setLoading(true);
     try {
       const [tplRes, recruitersRes] = await Promise.all([
-        emailTemplateAPI.get(),
-        recruiterAPI.getAll({ status: 'new', limit: 1 }),
+        emailTemplateAPI.get({ skipAuthRedirect: true }),
+        recruiterAPI.getAll({ status: 'new', limit: 1 }, { skipAuthRedirect: true }),
       ]);
-      const { template: tpl, resume: rsm, resumeChanged: changed } = tplRes.data.data;
-      setTemplate(tpl);
+      const { template: tpl, templates: savedTemplates, resume: rsm, resumeChanged: changed } = tplRes.data.data;
+      const selectedTemplate = savedTemplates?.[0] || tpl || null;
+      setTemplates(selectedTemplate ? [selectedTemplate] : []);
       setResume(rsm);
-      setResumeChanged(changed);
+      setResumeChanged(selectedTemplate?.resumeChanged ?? changed);
       setNewCount(recruitersRes.data.pagination?.total ?? 0);
 
-      if (tpl) { setSubject(tpl.subject); setBody(tpl.body); }
+      setTemplate(selectedTemplate);
+      setSubject(selectedTemplate?.subject || '');
+      setBody(selectedTemplate?.body || '');
+      setManualSubject(selectedTemplate?.subject || 'Application for {{role}}');
+      setManualBody(selectedTemplate?.body || MANUAL_STARTER);
       setIsDirty(false);
-    } catch {
-      toast.error('Failed to load template data');
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error('Session expired. Please log in again.');
+        setTimeout(() => navigate('/login'), 1500);
+      } else {
+        toast.error('Failed to load template data');
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => { loadAll(); }, [loadAll]);
 
@@ -88,28 +102,44 @@ const EmailTemplate = () => {
     }
     setGenerating(true);
     try {
-      const res = await emailTemplateAPI.generate(force);
+      const res = await emailTemplateAPI.generate(force, { skipAuthRedirect: true });
       const { data: tpl, generated } = res.data;
-      setTemplate(tpl);
-      setSubject(tpl.subject);
-      setBody(tpl.body);
+      const savedTemplate = tpl;
+      setTemplates([savedTemplate]);
+      setTemplate(savedTemplate);
+      setSubject(savedTemplate.subject);
+      setBody(savedTemplate.body);
       setResumeChanged(false);
       setIsDirty(false);
-      toast.success(generated ? `Template v${tpl.version} generated from resume!` : 'Template is already up-to-date.');
+      toast.success(generated ? 'Job-role-ready template generated!' : 'Template is already up-to-date.');
     } catch (err) {
-      const msg = err.response?.data?.message || 'Generation failed';
-      // 503 = provider busy — suggest manual fallback
-      if (err.response?.status === 503 || err.response?.status === 429) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
         toast.error(
           <div>
-            <p className="font-semibold">{msg}</p>
-            <p className="text-xs mt-1">Switch to the <strong>Write Manually</strong> tab to write your email without AI.</p>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
           </div>,
-          { autoClose: 8000 }
+          { autoClose: false }
         );
-        setActiveTab(TAB_MANUAL);
       } else {
-        toast.error(msg);
+        const msg = err.response?.data?.message || 'Generation failed';
+        // 503 = provider busy — suggest manual fallback
+        if (err.response?.status === 503 || err.response?.status === 429) {
+          toast.error(
+            <div>
+              <p className="font-semibold">{msg}</p>
+              <p className="text-xs mt-1">Switch to the <strong>Write Manually</strong> tab to write your email without AI.</p>
+            </div>,
+            { autoClose: 8000 }
+          );
+          setActiveTab(TAB_MANUAL);
+        } else {
+          toast.error(msg);
+        }
       }
     } finally {
       setGenerating(false);
@@ -121,12 +151,27 @@ const EmailTemplate = () => {
     if (!template) return;
     setSaving(true);
     try {
-      const res = await emailTemplateAPI.update(template._id, { subject, body });
+      const res = await emailTemplateAPI.update(template._id, { subject, body }, { skipAuthRedirect: true });
       setTemplate(res.data.data);
+      setTemplates(current => current.map(item => item._id === template._id ? res.data.data : item));
       setIsDirty(false);
       toast.success('Template saved');
-    } catch {
-      toast.error('Failed to save template');
+    } catch (err) {
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error('Failed to save template');
+      }
     } finally {
       setSaving(false);
     }
@@ -140,13 +185,16 @@ const EmailTemplate = () => {
     }
     setSavingManual(true);
     try {
-      const res = await emailTemplateAPI.saveManual({ subject: manualSubject, body: manualBody });
+      const res = await emailTemplateAPI.saveManual({ subject: manualSubject, body: manualBody }, { skipAuthRedirect: true });
       const tpl = res.data.data;
-      setTemplate(tpl);
-      setSubject(tpl.subject);
-      setBody(tpl.body);
+      const savedTemplate = tpl;
+      setTemplates([savedTemplate]);
+      setTemplate(savedTemplate);
+      setSubject(savedTemplate.subject);
+      setBody(savedTemplate.body);
+      setResumeChanged(false);
       setIsDirty(false);
-      toast.success(`Manual template v${tpl.version} saved! Switch to the AI tab to create drafts.`);
+      toast.success('Master template saved!');
       // Switch to AI tab so user can see the result and create drafts
       setActiveTab(TAB_AI);
     } catch (err) {
@@ -158,10 +206,9 @@ const EmailTemplate = () => {
 
   // ── Create drafts for new recruiters ─────────────────────────────────
   const handleCreateDrafts = async () => {
-    if (!template) { toast.error('Save a template first.'); return; }
     setCreatingDrafts(true);
     try {
-      const res = await aiAPI.generateForNew();
+      const res = await aiAPI.generateForNew({ skipAuthRedirect: true });
       const { created } = res.data.data;
       setNewCount(0);
       toast.success(created > 0
@@ -169,7 +216,21 @@ const EmailTemplate = () => {
         : res.data.message
       );
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create drafts');
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to create drafts');
+      }
     } finally {
       setCreatingDrafts(false);
     }
@@ -194,7 +255,7 @@ const EmailTemplate = () => {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Email Template</h1>
         <p className="text-gray-500 text-sm mt-0.5">
-          One master email reused for every application — write it yourself or generate it from your resume.
+          Build one adaptable master template. AI tailors each recruiter draft to the specific job role, job description, and your resume.
         </p>
       </div>
 
@@ -230,7 +291,9 @@ const EmailTemplate = () => {
             <Sparkles className="w-5 h-5 text-primary-500" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">Template</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">
+              Master Template
+            </p>
             {template ? (
               <>
                 <p className="font-semibold text-sm text-gray-900 dark:text-white">v{template.version}</p>
@@ -266,7 +329,7 @@ const EmailTemplate = () => {
       </div>
 
       {/* ── Create Drafts CTA ────────────────────────────────────────── */}
-      {newCount > 0 && template && (
+      {newCount > 0 && (
         <div className="card p-5 flex items-center justify-between gap-4 border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
@@ -276,18 +339,18 @@ const EmailTemplate = () => {
               <p className="font-semibold text-gray-900 dark:text-white text-sm">
                 {newCount} recruiter{newCount !== 1 ? 's' : ''} uploaded — ready to draft
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">Template copied for each one. No AI calls.</p>
+              <p className="text-xs text-gray-500 mt-0.5">AI generates a unique email per recruiter based on their job role and your resume skills.</p>
             </div>
           </div>
           <button onClick={handleCreateDrafts} disabled={creatingDrafts} className="btn-primary bg-green-600 hover:bg-green-700 flex-shrink-0">
             {creatingDrafts ? <LoadingSpinner size="sm" /> : <Send className="w-4 h-4" />}
-            {creatingDrafts ? 'Creating…' : 'Create Drafts'}
+            {creatingDrafts ? 'Generating…' : 'Create Drafts'}
           </button>
         </div>
       )}
 
       {/* All caught up nudge */}
-      {newCount === 0 && template && (
+      {newCount === 0 && templates.length > 0 && (
         <div className="card p-4 flex items-center gap-3 bg-gray-50 dark:bg-gray-800/40">
           <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -353,7 +416,7 @@ const EmailTemplate = () => {
                   {template ? 'Edit or regenerate your AI-written template' : 'Generate from your resume'}
                 </p>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  AI reads your resume file and writes the email. No profile fields are used.
+                  AI uses your resume to create an adaptable template; recruiter drafts are customized for each job description.
                 </p>
               </div>
               <button
@@ -372,7 +435,7 @@ const EmailTemplate = () => {
               <div className="flex flex-col items-center gap-3 py-8">
                 <LoadingSpinner size="xl" className="text-primary-500" />
                 <p className="text-gray-500 text-sm">Reading your resume and writing the email…</p>
-                <p className="text-xs text-gray-400">This is the only AI call. The result is reused for all companies.</p>
+                <p className="text-xs text-gray-400">Saved here for reference; automatic drafts use the role-specific body.</p>
               </div>
             )}
 
@@ -384,7 +447,7 @@ const EmailTemplate = () => {
                 </div>
                 <p className="text-gray-500 text-sm max-w-sm">
                   {resume
-                    ? 'Click Generate to create your master application email from your resume. Or switch to Write Manually if you prefer full control.'
+                    ? 'Click Generate to create an adaptable template from your resume. Recruiter drafts will be customized to each job role.'
                     : 'Upload a resume first, then come back to generate your email.'}
                 </p>
                 {!resume && (
@@ -401,7 +464,7 @@ const EmailTemplate = () => {
                 <div className="flex items-center gap-2 p-3 rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800">
                   <Info className="w-4 h-4 text-primary-500 flex-shrink-0" />
                   <p className="text-xs text-primary-600 dark:text-primary-400">
-                    No company or recruiter names included — generic enough for any employer.
+                    This is a reference template for your own review. Each recruiter gets a unique AI-written email based on their job role and your resume.
                     Edits here never trigger another AI call.
                   </p>
                 </div>
@@ -452,8 +515,8 @@ const EmailTemplate = () => {
             <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
               <PenLine className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
               <div className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
-                <p className="font-semibold">Write your own email — no AI required</p>
-                <p>Use this when the AI provider is unavailable, or when you simply prefer to write it yourself. Your email will be saved as the master template and reused for all companies.</p>
+                <p className="font-semibold">Write and save a reference email — no AI required</p>
+                <p>This saved template is for your reference. Each recruiter's draft is still AI-generated from their role and your resume.</p>
               </div>
             </div>
 

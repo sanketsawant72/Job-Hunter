@@ -15,7 +15,7 @@ export const useRecruiters = (initialParams = {}) => {
     setLoading(true);
     try {
       const queryParams = overrideParams || params;
-      const res = await recruiterAPI.getAll(queryParams);
+      const res = await recruiterAPI.getAll(queryParams, { skipAuthRedirect: true });
       setRecruiters(res.data.data);
       setPagination(res.data.pagination);
     } catch {

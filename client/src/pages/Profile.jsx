@@ -43,11 +43,25 @@ const Profile = () => {
       formData.append('email', data.email);
       if (avatarFile) formData.append('avatar', avatarFile);
 
-      const res = await authAPI.updateProfile(formData);
+      const res = await authAPI.updateProfile(formData, { skipAuthRedirect: true });
       updateUser(res.data.user);
       toast.success('Profile updated!');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Update failed');
+      const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
+      if (isAuthError) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-1">Session expired</p>
+            <p className="text-sm mb-2">Please log in again to continue.</p>
+            <button onClick={() => window.location.href = '/login'} className="text-sm underline font-medium">
+              Log In →
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error(err.response?.data?.message || 'Update failed');
+      }
     } finally {
       setSaving(false);
     }
@@ -56,7 +70,7 @@ const Profile = () => {
   const onChangePassword = async (data) => {
     setChangingPass(true);
     try {
-      await authAPI.changePassword({ currentPassword: data.currentPassword, newPassword: data.newPassword });
+      await authAPI.changePassword({ currentPassword: data.currentPassword, newPassword: data.newPassword }, { skipAuthRedirect: true });
       toast.success('Password changed successfully!');
       resetPass();
     } catch (err) {
