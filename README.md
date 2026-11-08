@@ -225,7 +225,7 @@ Deploy the backend and frontend as separate services. The root `render.yaml` con
 3. Set the Render service's `CLIENT_URL` to the exact production frontend origin (without a trailing slash). Add any additional frontend origins as a comma-separated list, then redeploy/restart the API so its CORS setting takes effect.
 4. If using Gmail, confirm the Google OAuth redirect URI matches the deployed Render API URL exactly.
 
-The backend currently writes resumes and profile images to local disk. Render's default filesystem is ephemeral, so these files can be lost when the service restarts or redeploys. Use a paid Render persistent disk mounted at `server/uploads` or migrate uploads to object storage before relying on persistent user files.
+The Render blueprint provisions a 1 GB persistent disk at `/var/data` and stores uploads under `/var/data/uploads` (`UPLOADS_DIR`). Persistent disks require a paid Render web service. If you already have resume records from before enabling the disk, upload the resume again so the file is written to persistent storage.
 
 ---
 

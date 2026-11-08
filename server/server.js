@@ -11,11 +11,10 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
-const path = require('path');
-
 const connectDB = require('./config/database');
 const logger = require('./utils/logger');
 const errorHandler = require('./middleware/errorHandler');
+const { uploadsDir } = require('./utils/uploadPaths');
 
 // Route imports
 const authRoutes = require('./routes/authRoutes');
@@ -98,7 +97,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Static files (resume uploads)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsDir));
 
 // API Routes
 app.use('/api/auth', authLimiter, authRoutes);

@@ -10,6 +10,8 @@ const GmailLog      = require('../models/GmailLog');
 const FailedEmail   = require('../models/FailedEmail');
 const Resume        = require('../models/Resume');
 const logger        = require('../utils/logger');
+const { getResumePath } = require('../utils/uploadPaths');
+const { composeEmailBody } = require('../utils/emailContent');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // helpers
@@ -65,8 +67,8 @@ async function sendWithRetry({ authClient, draft, resume, includeResume = true, 
           authClient,
           to:         draft.recruiter.email,
           subject:    draft.subject,
-          body:       draft.body + (draft.signature ? `\n\n${draft.signature}` : ''),
-          resumePath: includeResume ? resume?.path || null : null,
+          body:       composeEmailBody(draft.body, draft.signature),
+          resumePath: includeResume ? getResumePath(resume) : null,
           resumeName: includeResume ? resume?.originalName || null : null
         });
       }
@@ -243,8 +245,8 @@ exports.createDraft = async (req, res, next) => {
       authClient,
       to:         draft.recruiter.email,
       subject:    draft.subject,
-      body:       draft.body + (draft.signature ? `\n\n${draft.signature}` : ''),
-      resumePath: resume && attachResume !== false ? resume.path : null,
+      body:       composeEmailBody(draft.body, draft.signature),
+      resumePath: resume && attachResume !== false ? getResumePath(resume) : null,
       resumeName: resume && attachResume !== false ? resume.originalName : null
     });
 

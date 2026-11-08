@@ -3,9 +3,14 @@ services:
     name: job-hunter-api
     runtime: node
     rootDir: server
+    plan: starter
     buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /health
+    disk:
+      name: job-hunter-uploads
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
@@ -31,3 +36,5 @@ services:
         sync: false
       - key: MAX_FILE_SIZE
         value: 5242880
+      - key: UPLOADS_DIR
+        value: /var/data/uploads

@@ -20,6 +20,7 @@ const EmailTemplate = require('../models/EmailTemplate');
 const Resume        = require('../models/Resume');
 const Settings      = require('../models/Settings');
 const logger        = require('../utils/logger');
+const { getResumePath } = require('../utils/uploadPaths');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // helpers
@@ -301,7 +302,7 @@ exports.getTemplate = async (req, res, next) => {
       Resume.findOne({ user: req.user.id, isActive: true }),
     ]);
 
-    const currentHash = resume ? hashFile(resume.path) : null;
+    const currentHash = resume ? hashFile(getResumePath(resume)) : null;
     const latest = templates[0] || null;
     const template = latest
       ? {
@@ -343,7 +344,8 @@ exports.generateTemplate = async (req, res, next) => {
     }
 
     // ── Hash check ───────────────────────────────────────────
-    const currentHash = hashFile(resume.path);
+    const resumePath = getResumePath(resume);
+    const currentHash = hashFile(resumePath);
     const existing = await EmailTemplate.findOne({ user: req.user.id, isActive: true }).sort({ createdAt: -1 });
 
     if (existing && !force) {
@@ -355,7 +357,7 @@ exports.generateTemplate = async (req, res, next) => {
     }
 
     // ── Extract resume text ──────────────────────────────────
-    const { text: resumeText, warning } = await extractResumeText(resume.path, resume.mimetype);
+    const { text: resumeText, warning } = await extractResumeText(resumePath, resume.mimetype);
 
     if (!resumeText) {
       return res.status(400).json({
@@ -468,7 +470,7 @@ exports.saveManualTemplate = async (req, res, next) => {
     const existing = await EmailTemplate.findOne({ user: req.user.id, isActive: true }).sort({ createdAt: -1 });
 
     // Compute hash so the stale-detection still works after a resume upload
-    const currentHash = resume ? hashFile(resume.path) : null;
+    const currentHash = resume ? hashFile(getResumePath(resume)) : null;
 
     await EmailTemplate.updateMany({ user: req.user.id, isActive: true }, { isActive: false });
 
@@ -583,12 +585,14 @@ INSTRUCTIONS:
 - Select the strongest 2-3 resume-backed qualifications that directly match the job requirements for this exact role
 - Explain the match with specific evidence from the resume, not unsupported claims
 - Keep the body to 2-3 short paragraphs, under 150 words before signature
+- Use one concise, specific role title in the subject; do not list alternative roles
+- Keep the subject under 100 characters; the system will add the candidate name
 - End the last paragraph with a call to action
 - Do not include a signature or any phone number, social link, or other contact detail
 
 Return ONLY this JSON (no markdown, no extra text):
 {
-  "subject": "Application for ${role} at ${company}",
+  "subject": "Application for ${role} - ${settings.candidateName || 'Candidate'}",
   "body": "${greeting.replace(/"/g, '\\"')}\\n\\n[brief introduction with relevant resume-backed skills]\\n\\n[specific evidence tied to the job requirements]\\n\\n[personalized call to action]"
 }`;
 
@@ -680,9 +684,15 @@ function buildResumeSignature(resumeText, settings) {
   [settings.linkedin, settings.github, settings.portfolio].forEach(addLink);
   (settings.socialLinks || []).forEach(({ label, url }) => addLink(url, label));
 
-  const signatureParts = [`Best regards,\n${settings.candidateName || 'Candidate'}`];
-  if (settings.phone) signatureParts.push(settings.phone);
-  links.forEach(({ label, url }) => signatureParts.push(`${label}: ${url}`));
+  const signatureParts = [settings.emailSignature?.trim() || `Best regards,\n${settings.candidateName || 'Candidate'}`];
+  const addProfileLine = (line) => {
+    if (line && !signatureParts.join('\n').toLowerCase().includes(line.toLowerCase())) {
+      signatureParts.push(line);
+    }
+  };
+  addProfileLine(settings.degree || settings.college);
+  addProfileLine(settings.phone);
+  links.forEach(({ label, url }) => addProfileLine(`${label}: ${url}`));
   return signatureParts.join('\n');
 }
 

@@ -4,6 +4,7 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { uploadsDir } = require('../utils/uploadPaths');
 
 // Ensure upload directories exist
 const ensureDir = (dir) => {
@@ -13,7 +14,7 @@ const ensureDir = (dir) => {
 // Resume storage
 const resumeStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../uploads/resume');
+    const dir = path.join(uploadsDir, 'resume');
     ensureDir(dir);
     cb(null, dir);
   },
@@ -26,7 +27,7 @@ const resumeStorage = multer.diskStorage({
 // Profile image storage
 const profileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../uploads/profiles');
+    const dir = path.join(uploadsDir, 'profiles');
     ensureDir(dir);
     cb(null, dir);
   },
@@ -39,7 +40,7 @@ const profileStorage = multer.diskStorage({
 // Import file storage (CSV/Excel)
 const importStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../uploads/imports');
+    const dir = path.join(uploadsDir, 'imports');
     ensureDir(dir);
     cb(null, dir);
   },

@@ -7,10 +7,21 @@
 const Draft         = require('../models/Draft');
 const Recruiter     = require('../models/Recruiter');
 const Resume        = require('../models/Resume');
+const { getResumePath } = require('../utils/uploadPaths');
 const Settings      = require('../models/Settings');
 const EmailTemplate = require('../models/EmailTemplate');
 const logger        = require('../utils/logger');
+const { removeTrailingSignature } = require('../utils/emailContent');
 const { generatePerRecruiterEmail, resolveApiKey, extractResumeText } = require('./emailTemplateController');
+
+function getPrimaryRole(role) {
+  const roles = String(role || '')
+    .split('/')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const title = roles.find((item) => /\b(developer|engineer|designer|analyst|manager|scientist|architect|consultant|intern)\b/i.test(item));
+  return title || roles.find((item) => !/^(fresher|entry[- ]level|junior|senior)$/i.test(item)) || 'Software Developer';
+}
 
 /**
  * Fetch the latest active master template, including templates saved before
@@ -30,32 +41,40 @@ async function getMasterTemplate(userId) {
  */
 async function buildDraftForRecruiter(recruiter, settings, resumeContext) {
   const baseTemplate = await getMasterTemplate(recruiter.user || settings.user);
+  const role = getPrimaryRole(recruiter.role);
+  const recruiterForEmail = { ...recruiter.toObject(), role };
 
   const generated = await generatePerRecruiterEmail(
     resumeContext.apiKey,
     resumeContext.provider,
     resumeContext.text,
-    recruiter,
+    recruiterForEmail,
     settings,
     baseTemplate
   );
 
-  const role = (recruiter.role || 'Software Developer').trim();
   const company = (recruiter.company || '').trim();
   const hrName = (recruiter.name || '').trim();
-  const greeting = (!hrName || /not publicly found|hiring team|unknown|n\/a/i.test(hrName))
+  const emailPrefix = (recruiter.email || '').split('@')[0].toLowerCase();
+  const greeting = (!hrName || hrName.toLowerCase() === emailPrefix || /not publicly found|hiring team|unknown|n\/a/i.test(hrName))
     ? 'Dear Hiring Team,'
     : `Dear ${hrName},`;
 
-  const subject = (generated.subject || `Application for ${role} at ${company}`)
-    .replace(/\{\{role\}\}/gi, role)
-    .replace(/\{\{company\}\}/gi, company);
+  const candidateName = (settings.candidateName || 'Candidate').trim();
+  const subject = `Application for ${role} - ${candidateName}`.slice(0, 100);
 
-  const body = (generated.body || '')
+  let body = (generated.body || '')
     .replace(/\{\{greeting\}\}/gi, greeting)
     .replace(/\{\{role\}\}/gi, role)
     .replace(/\{\{company\}\}/gi, company)
-    .replace(/\{\{signature\}\}/gi, generated.signature || '');
+    .replace(/\{\{signature\}\}/gi, '');
+
+  body = removeTrailingSignature(body, generated.signature);
+  const jobPosting = `${recruiter.jobDescription || ''}\n${recruiter.notes || ''}`
+    .match(/https?:\/\/[^\s<>"']+/i)?.[0]?.replace(/[),.;]+$/g, '');
+  if (jobPosting && !body.includes(jobPosting)) {
+    body = `${body}\n\nJob Posting: ${jobPosting}`;
+  }
 
   logger.info(`AI draft for ${recruiter.email} | role: "${role}" | masterTemplate: ${baseTemplate ? 'yes' : 'no'} | provider: ${resumeContext.provider}`);
   return { subject, body, signature: generated.signature, usedAI: true };
@@ -73,7 +92,7 @@ async function loadResumeContext(userId, settings) {
     throw error;
   }
 
-  const { text, warning } = await extractResumeText(resume.path, resume.mimetype);
+  const { text, warning } = await extractResumeText(getResumePath(resume), resume.mimetype);
   if (!text) {
     const error = new Error(warning || 'Could not extract text from your resume. Upload a text-based PDF or DOCX.');
     error.statusCode = 400;

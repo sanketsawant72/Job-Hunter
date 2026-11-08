@@ -1,11 +1,11 @@
 /**
  * Resume Controller
  */
-const path = require('path');
 const fs = require('fs');
 const Resume = require('../models/Resume');
 const EmailTemplate = require('../models/EmailTemplate');
 const { formatFileSize } = require('../utils/helpers');
+const { getResumePath } = require('../utils/uploadPaths');
 
 // @desc   Upload resume
 // @route  POST /api/resume/upload
@@ -20,8 +20,9 @@ exports.uploadResume = async (req, res, next) => {
     await Resume.updateMany({ user: req.user.id }, { isActive: false });
 
     // Delete old resume file from disk
-    if (oldResume && fs.existsSync(oldResume.path)) {
-      fs.unlinkSync(oldResume.path);
+    const oldResumePath = getResumePath(oldResume);
+    if (oldResumePath && fs.existsSync(oldResumePath)) {
+      fs.unlinkSync(oldResumePath);
     }
 
     const resume = await Resume.create({
@@ -84,8 +85,9 @@ exports.deleteResume = async (req, res, next) => {
     if (!resume) return res.status(404).json({ success: false, message: 'No active resume found' });
 
     // Delete file from disk
-    if (fs.existsSync(resume.path)) {
-      fs.unlinkSync(resume.path);
+    const resumePath = getResumePath(resume);
+    if (resumePath && fs.existsSync(resumePath)) {
+      fs.unlinkSync(resumePath);
     }
 
     await Resume.findByIdAndDelete(resume._id);
@@ -98,5 +100,5 @@ exports.deleteResume = async (req, res, next) => {
 // @desc   Get resume file path (internal use)
 exports.getResumePath = async (userId) => {
   const resume = await Resume.findOne({ user: userId, isActive: true });
-  return resume ? resume.path : null;
+  return getResumePath(resume);
 };
