@@ -14,6 +14,18 @@ const logger        = require('../utils/logger');
 const { removeTrailingSignature } = require('../utils/emailContent');
 const { generatePerRecruiterEmail, resolveApiKey, extractResumeText } = require('./emailTemplateController');
 
+/**
+ * Returns the full role string for display / subject line (preserves slashes).
+ * Falls back to 'Software Developer' only when the field is blank.
+ */
+function getFullRole(role) {
+  return String(role || '').trim() || 'Software Developer';
+}
+
+/**
+ * Returns a single primary title for use inside AI prompts so the model
+ * doesn't get confused by slash-separated alternatives.
+ */
 function getPrimaryRole(role) {
   const roles = String(role || '')
     .split('/')
@@ -41,8 +53,11 @@ async function getMasterTemplate(userId) {
  */
 async function buildDraftForRecruiter(recruiter, settings, resumeContext) {
   const baseTemplate = await getMasterTemplate(recruiter.user || settings.user);
-  const role = getPrimaryRole(recruiter.role);
-  const recruiterForEmail = { ...recruiter.toObject(), role };
+  // Use the full role (e.g. "Software Developer / Full Stack / React Developer Fresher")
+  // for subject + display; use the extracted primary role only inside the AI prompt.
+  const fullRole    = getFullRole(recruiter.role);
+  const primaryRole = getPrimaryRole(recruiter.role);
+  const recruiterForEmail = { ...recruiter.toObject(), role: primaryRole };
 
   const generated = await generatePerRecruiterEmail(
     resumeContext.apiKey,
@@ -61,11 +76,12 @@ async function buildDraftForRecruiter(recruiter, settings, resumeContext) {
     : `Dear ${hrName},`;
 
   const candidateName = (settings.candidateName || 'Candidate').trim();
-  const subject = `Application for ${role} - ${candidateName}`.slice(0, 100);
+  // Subject mirrors the sample: "Application for <full role> – <candidateName>"
+  const subject = `Application for ${fullRole} – ${candidateName}`.slice(0, 150);
 
   let body = (generated.body || '')
     .replace(/\{\{greeting\}\}/gi, greeting)
-    .replace(/\{\{role\}\}/gi, role)
+    .replace(/\{\{role\}\}/gi, fullRole)
     .replace(/\{\{company\}\}/gi, company)
     .replace(/\{\{signature\}\}/gi, '');
 
@@ -76,23 +92,52 @@ async function buildDraftForRecruiter(recruiter, settings, resumeContext) {
     body = `${body}\n\nJob Posting: ${jobPosting}`;
   }
 
-  logger.info(`AI draft for ${recruiter.email} | role: "${role}" | masterTemplate: ${baseTemplate ? 'yes' : 'no'} | provider: ${resumeContext.provider}`);
+  logger.info(`AI draft for ${recruiter.email} | role: "${fullRole}" | masterTemplate: ${baseTemplate ? 'yes' : 'no'} | provider: ${resumeContext.provider}`);
   return { subject, body, signature: generated.signature, usedAI: true };
 }
 
 /**
  * Gather resume text + API key once, then reuse for all recruiters in a batch.
  * Returns { text, apiKey, provider } — text is null if unavailable.
+ *
+ * Self-heals stale DB records: if the active resume's file is missing but an
+ * inactive record's file exists, it promotes the inactive one before reading.
  */
 async function loadResumeContext(userId, settings) {
-  const resume = await Resume.findOne({ user: userId, isActive: true });
+  let resume = await Resume.findOne({ user: userId, isActive: true });
   if (!resume) {
-    const error = new Error('Upload an active resume before generating personalized emails.');
+    const error = new Error('No resume uploaded. Please upload your resume on the Resume page before generating emails.');
     error.statusCode = 400;
     throw error;
   }
 
-  const { text, warning } = await extractResumeText(getResumePath(resume), resume.mimetype);
+  // Self-heal: if the active record's file is missing, try older records
+  let resumePath = getResumePath(resume);
+  const fs = require('fs');
+  if (!resumePath || !fs.existsSync(resumePath)) {
+    logger.warn(`loadResumeContext: active resume file missing (${resumePath}), attempting self-heal for user ${userId}`);
+    const candidates = await Resume.find({ user: userId, isActive: false }).sort({ createdAt: -1 });
+    let healed = false;
+    for (const c of candidates) {
+      const p = getResumePath(c);
+      if (p && fs.existsSync(p)) {
+        await Resume.findByIdAndUpdate(resume._id, { isActive: false });
+        await Resume.findByIdAndUpdate(c._id, { isActive: true });
+        resume = await Resume.findById(c._id);
+        resumePath = p;
+        healed = true;
+        logger.info(`Self-healed resume for user ${userId}: now using ${resume.filename}`);
+        break;
+      }
+    }
+    if (!healed) {
+      const error = new Error('Your resume file could not be found on the server. Please re-upload your resume on the Resume page.');
+      error.statusCode = 400;
+      throw error;
+    }
+  }
+
+  const { text, warning } = await extractResumeText(resumePath, resume.mimetype);
   if (!text) {
     const error = new Error(warning || 'Could not extract text from your resume. Upload a text-based PDF or DOCX.');
     error.statusCode = 400;
@@ -109,6 +154,26 @@ async function loadResumeContext(userId, settings) {
 
   return { text, apiKey, provider };
 }
+
+async function findRecruitersMissingDrafts(userId) {
+  // Get all recruiters that already have at least one draft (any status)
+  const existingRecruiters = await Draft.distinct('recruiter', { user: userId });
+  // Include 'new' (never drafted) AND 'drafted' (status says drafted but no Draft doc — partial failure)
+  return Recruiter.find({
+    user  : userId,
+    status: { $in: ['new', 'drafted'] },
+    _id   : { $nin: existingRecruiters },
+  }).sort({ createdAt: 1 });
+}
+
+exports.getDraftableCount = async (req, res, next) => {
+  try {
+    const recruiters = await findRecruitersMissingDrafts(req.user.id);
+    res.json({ success: true, data: { count: recruiters.length } });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // @desc   Create a draft for one recruiter (role-specific, AI-powered)
 // @route  POST /api/ai/generate
@@ -159,7 +224,7 @@ exports.generateEmail = async (req, res, next) => {
 // Generate for all new recruiters
 // ─────────────────────────────────────────────────────────────────────────────
 
-// @desc   Create drafts for every recruiter with status 'new'
+// @desc   Create drafts for recruiters without an existing draft
 // @route  POST /api/ai/generate-for-new
 exports.generateForNew = async (req, res, next) => {
   try {
@@ -168,12 +233,12 @@ exports.generateForNew = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please complete your profile in Settings' });
     }
 
-    const newRecruiters = await Recruiter.find({ user: req.user.id, status: 'new' });
-    if (newRecruiters.length === 0) {
+    const recruiters = await findRecruitersMissingDrafts(req.user.id);
+    if (recruiters.length === 0) {
       return res.json({
         success: true,
-        message: 'No new recruiters to process — all are already drafted or sent.',
-        data: { created: 0, total: 0 },
+        message: 'No recruiters are missing drafts. Check Bulk Send for existing drafts and failed sends.',
+        data: { created: 0, total: 0, remaining: 0, errors: [] },
       });
     }
 
@@ -183,7 +248,9 @@ exports.generateForNew = async (req, res, next) => {
     let created  = 0;
     let aiCount  = 0;
     const errors = [];
-    for (const recruiter of newRecruiters) {
+    let firstErrorMessage = null;
+
+    for (const recruiter of recruiters) {
       try {
         const { subject, body, signature, usedAI } = await buildDraftForRecruiter(recruiter, settings, resumeContext);
         await Draft.create({
@@ -200,16 +267,38 @@ exports.generateForNew = async (req, res, next) => {
         logger.info(`generateForNew: draft for ${recruiter.email} | role: ${recruiter.role || 'unspecified'} | AI: ${usedAI}`);
       } catch (err) {
         logger.error(`generateForNew: failed for ${recruiter.email} — ${err.message}`);
-        errors.push(recruiter.email);
+        errors.push({ email: recruiter.email, reason: err.message });
+        if (!firstErrorMessage) firstErrorMessage = err.message;
+
+        // If the AI provider is broken (auth/quota/model), all subsequent calls will fail too.
+        // Abort early and surface the real error so the user knows what to fix.
+        const isFatal = err.statusCode === 401 || err.statusCode === 403 || err.statusCode === 400
+          || /invalid api key|incorrect api key|model not found|api key|quota|authentication/i.test(err.message);
+        if (isFatal && created === 0) {
+          logger.error(`generateForNew: aborting batch — fatal AI error for user ${req.user.id}: ${err.message}`);
+          return res.status(err.statusCode || 400).json({
+            success: false,
+            message: err.message,
+            data: { created: 0, total: recruiters.length, remaining: recruiters.length, failed: errors.length, errors: errors.map(e => e.email) },
+          });
+        }
       }
     }
 
-    logger.info(`generateForNew: ${created}/${newRecruiters.length} drafts created (${aiCount} AI-generated) for user ${req.user.id}`);
+    const remaining = Math.max(0, recruiters.length - created);
+    const failed = errors.length;
+    // Surface the first error when all drafts failed so users know the root cause
+    const message = created === 0 && firstErrorMessage
+      ? `0 drafts created. ${firstErrorMessage}`
+      : remaining
+        ? `${created} draft${created !== 1 ? 's' : ''} created; ${remaining} recruiter${remaining !== 1 ? 's' : ''} still need role-specific drafts.`
+        : `${created} draft${created !== 1 ? 's' : ''} created successfully.`;
+    logger.info(`generateForNew: ${created}/${recruiters.length} drafts created (${aiCount} AI-generated) for user ${req.user.id}`);
 
     res.json({
       success: true,
-      message: `${created} draft${created !== 1 ? 's' : ''} created${aiCount > 0 ? ` (${aiCount} AI-customized for their role)` : ' with role-specific emails'}.`,
-      data: { created, total: newRecruiters.length, aiCount, errors },
+      message,
+      data: { created, total: recruiters.length, remaining, failed, aiCount, errors: errors.map(e => e.email) },
     });
   } catch (error) {
     next(error);

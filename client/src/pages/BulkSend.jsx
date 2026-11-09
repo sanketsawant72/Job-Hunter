@@ -75,10 +75,8 @@ const DraftPreview = ({ draft }) => {
 
 // ── Send result row ───────────────────────────────────────────────────────
 const ResultRow = ({ result, onNavigate }) => {
-  const isAuthError = result.reason?.includes('Insufficient Permission')
-    || result.reason?.includes('invalid_grant')
-    || result.reason?.includes('Gmail token expired')
-    || result.reason?.includes('Gmail needs reconnecting');
+  const isAuthError = /insufficient permission|permission denied|invalid_grant|gmail token expired|gmail needs reconnecting/i
+    .test(result.reason || '');
 
   return (
     <div className={`flex items-center gap-3 px-4 py-3 rounded-xl ${
@@ -123,7 +121,7 @@ const BulkSend = () => {
   const [sendProgress,  setSendProgress]  = useState(0);
   const [results,       setResults]       = useState(null);
   const [showConfirm,   setShowConfirm]   = useState(false);
-  const [statusFilter,  setStatusFilter]  = useState('draft');
+  const [statusFilter,  setStatusFilter]  = useState('ready');
   const [failedCount,   setFailedCount]   = useState(0);
   const [resetting,     setResetting]     = useState(false);
 
@@ -132,7 +130,8 @@ const BulkSend = () => {
     setLoading(true);
     try {
       const params = { limit: 500 };
-      if (statusFilter !== 'all') params.status = statusFilter;
+      if (statusFilter === 'ready') params.status = 'draft,approved';
+      else if (statusFilter !== 'all') params.status = statusFilter;
 
       const [draftsRes, failedRes] = await Promise.all([
         draftAPI.getAll(params, { skipAuthRedirect: true }),
@@ -202,7 +201,7 @@ const BulkSend = () => {
   });
 
   const toggleOne   = (id) => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  const selectAll   = () => setSelected(new Set(filtered.map(d => d._id)));
+  const selectAll   = () => setSelected(new Set(filtered.filter(d => d.status !== 'sent').map(d => d._id)));
   const clearAll    = () => setSelected(new Set());
   const selectGroup = (items) => setSelected(prev => {
     const n = new Set(prev);
@@ -277,7 +276,7 @@ const BulkSend = () => {
     }
   };
 
-  const FILTER_TABS = ['draft', 'failed', 'approved', 'all'];
+  const FILTER_TABS = ['ready', 'draft', 'failed', 'approved', 'all'];
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -386,7 +385,7 @@ const BulkSend = () => {
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
-              {s === 'all' ? 'All' : s}
+              {s === 'all' ? 'All' : s === 'ready' ? 'Ready to send' : s}
               {s === 'failed' && failedCount > 0 && (
                 <span className="ml-1.5 bg-red-500 text-white text-xs rounded-full px-1.5 py-0 leading-5">
                   {failedCount}

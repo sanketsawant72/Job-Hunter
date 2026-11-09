@@ -105,6 +105,7 @@ export const resumeAPI = {
 export const aiAPI = {
   generate: (data, options = {}) => api.post('/ai/generate', data, options),
   generateBatch: (data, options = {}) => api.post('/ai/generate-batch', data, options),
+  getDraftableCount: (options = {}) => api.get('/ai/draftable-count', options),
   generateForNew: (options = {}) => api.post('/ai/generate-for-new', {}, options),
 };
 

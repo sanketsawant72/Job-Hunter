@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
-import { emailTemplateAPI, aiAPI, recruiterAPI } from '../services/api';
+import { emailTemplateAPI, aiAPI } from '../services/api';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 // ── tab identifiers ───────────────────────────────────────────────────────
@@ -62,16 +62,16 @@ const EmailTemplate = () => {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [tplRes, recruitersRes] = await Promise.all([
+      const [tplRes, draftableRes] = await Promise.all([
         emailTemplateAPI.get({ skipAuthRedirect: true }),
-        recruiterAPI.getAll({ status: 'new', limit: 1 }, { skipAuthRedirect: true }),
+        aiAPI.getDraftableCount({ skipAuthRedirect: true }),
       ]);
       const { template: tpl, templates: savedTemplates, resume: rsm, resumeChanged: changed } = tplRes.data.data;
       const selectedTemplate = savedTemplates?.[0] || tpl || null;
       setTemplates(selectedTemplate ? [selectedTemplate] : []);
       setResume(rsm);
       setResumeChanged(selectedTemplate?.resumeChanged ?? changed);
-      setNewCount(recruitersRes.data.pagination?.total ?? 0);
+      setNewCount(draftableRes.data.data.count);
 
       setTemplate(selectedTemplate);
       setSubject(selectedTemplate?.subject || '');
@@ -209,12 +209,28 @@ const EmailTemplate = () => {
     setCreatingDrafts(true);
     try {
       const res = await aiAPI.generateForNew({ skipAuthRedirect: true });
-      const { created } = res.data.data;
-      setNewCount(0);
-      toast.success(created > 0
-        ? `${created} draft${created !== 1 ? 's' : ''} created! Go to Bulk Send.`
-        : res.data.message
-      );
+      const { created = 0, remaining = 0, errors = [] } = res.data.data || {};
+      setNewCount(remaining);
+
+      if (created > 0 && remaining === 0) {
+        toast.success(`${created} draft${created !== 1 ? 's' : ''} created! Go to Bulk Send.`);
+      } else if (created > 0 && remaining > 0) {
+        toast.warning(`${created} draft${created !== 1 ? 's' : ''} created; ${remaining} recruiter${remaining !== 1 ? 's' : ''} still need role-specific drafts.`);
+      } else if (created === 0 && errors.length > 0) {
+        // Surface the actual server message so users know what went wrong
+        const serverMsg = res.data.message || 'No drafts were created.';
+        toast.error(
+          <div>
+            <p className="font-semibold">0 drafts generated</p>
+            <p className="text-sm mt-1">{serverMsg}</p>
+          </div>,
+          { autoClose: 10000 }
+        );
+      } else if (remaining > 0) {
+        toast.info(res.data.message || 'No drafts were created yet. Some recruiters still need role-specific emails.');
+      } else {
+        toast.info(res.data.message || 'No recruiters are missing drafts.');
+      }
     } catch (err) {
       const isAuthError = err.response?.status === 401 && err.response?.data?.code?.startsWith('AUTH_');
       if (isAuthError) {
@@ -229,7 +245,15 @@ const EmailTemplate = () => {
           { autoClose: false }
         );
       } else {
-        toast.error(err.response?.data?.message || 'Failed to create drafts');
+        // Show the real backend error message (API key issues, resume issues, model issues, etc.)
+        const msg = err.response?.data?.message || 'Failed to create drafts';
+        toast.error(
+          <div>
+            <p className="font-semibold">Draft generation failed</p>
+            <p className="text-sm mt-1">{msg}</p>
+          </div>,
+          { autoClose: 12000 }
+        );
       }
     } finally {
       setCreatingDrafts(false);
