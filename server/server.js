@@ -55,31 +55,46 @@ const authLimiter = rateLimit({
 });
 
 // CORS
+// CLIENT_URL can be a comma-separated list of origins.
+// In production we also dynamically allow any *.vercel.app subdomain so
+// Vercel preview deployments work without manual config changes.
 const clientOriginConfig = process.env.CLIENT_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : '');
-const clientOrigins = clientOriginConfig
+const staticOrigins = clientOriginConfig
   .split(',')
-  .map((origin) => origin.trim())
+  .map((o) => o.trim())
   .filter(Boolean)
   .map((origin) => {
-    try {
-      return new URL(origin).origin;
-    } catch {
+    try { return new URL(origin).origin; } catch {
       throw new Error(`Invalid CLIENT_URL origin: ${origin}`);
     }
   });
 
-if (process.env.NODE_ENV === 'production' && clientOrigins.length === 0) {
+if (process.env.NODE_ENV === 'production' && staticOrigins.length === 0) {
   throw new Error('CLIENT_URL must contain the deployed frontend origin in production.');
 }
 
-app.use(cors({
-  origin: clientOrigins,
+const corsOptions = {
+  origin: (requestOrigin, callback) => {
+    // Allow server-to-server / curl requests (no origin header)
+    if (!requestOrigin) return callback(null, true);
+    // Allow static configured origins
+    if (staticOrigins.includes(requestOrigin)) return callback(null, true);
+    // Allow any Vercel preview deployment (*.vercel.app) in production
+    if (process.env.NODE_ENV === 'production' && /^https:\/\/[a-z0-9-]+-[a-z0-9]+-[a-z0-9]+\.vercel\.app$/i.test(requestOrigin)) {
+      return callback(null, true);
+    }
+    // Allow localhost in development
+    if (process.env.NODE_ENV !== 'production' && /^http:\/\/localhost:\d+$/.test(requestOrigin)) {
+      return callback(null, true);
+    }
+    callback(new Error(`CORS: origin ${requestOrigin} not allowed`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
 
-// Body parsers
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());

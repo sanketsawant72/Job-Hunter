@@ -7,34 +7,61 @@ services:
     buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /health
+
+    # Persistent disk — resumes survive redeploys (required for file-based storage)
     disk:
       name: job-hunter-uploads
       mountPath: /var/data
       sizeGB: 1
+
     envVars:
       - key: NODE_ENV
         value: production
+
+      # ── MongoDB ─────────────────────────────────────────────────────────
       - key: MONGODB_URI
-        sync: false
+        sync: false          # set in Render dashboard: your Atlas connection string
+
+      # ── Auth ────────────────────────────────────────────────────────────
       - key: JWT_SECRET
-        sync: false
+        sync: false          # set in Render dashboard: long random string
       - key: JWT_EXPIRE
         value: 7d
+
+      # ── AI Provider ─────────────────────────────────────────────────────
       - key: AI_PROVIDER
         value: groq
       - key: GROQ_API_KEY
-        sync: false
+        sync: false          # set in Render dashboard: gsk_...
       - key: GROQ_MODEL
         value: openai/gpt-oss-20b
-      - key: GOOGLE_CLIENT_ID
+      - key: GEMINI_API_KEY
         sync: false
-      - key: GOOGLE_CLIENT_SECRET
+      - key: GEMINI_MODEL
+        value: gemini-1.5-flash
+      - key: OPENAI_API_KEY
         sync: false
-      - key: GOOGLE_REDIRECT_URI
-        sync: false
-      - key: CLIENT_URL
-        sync: false
-      - key: MAX_FILE_SIZE
-        value: 5242880
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+
+      # ── File storage (persistent disk mounted at /var/data) ──────────────
       - key: UPLOADS_DIR
         value: /var/data/uploads
+
+      # ── Google OAuth ─────────────────────────────────────────────────────
+      - key: GOOGLE_CLIENT_ID
+        sync: false          # set in Render dashboard
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false          # set in Render dashboard
+      # IMPORTANT: must match exactly what is in Google Cloud Console → Authorized redirect URIs
+      - key: GOOGLE_REDIRECT_URI
+        value: https://job-hunter-k180.onrender.com/api/gmail/callback
+
+      # ── CORS — comma-separated list of allowed frontend origins ──────────
+      # Add your Vercel URL here. If you use a custom domain, add that too.
+      - key: CLIENT_URL
+        value: https://job-hunter-weld.vercel.app
+
+      # ── Upload size ──────────────────────────────────────────────────────
+      - key: MAX_FILE_SIZE
+        value: 5242880
